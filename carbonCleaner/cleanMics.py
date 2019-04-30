@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import glob
 from joblib import Parallel, delayed
 
-DOWNLOAD_MODEL_URL="https://github.com/rsanchezgarc/carbonCleaner/blob/master/carbonCleaner/models/defaultModel.keras"
+DOWNLOAD_MODEL_URL="http://campins.cnb.csic.es/carbon_cleaner/defaultModel.keras.gz"
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
          sizeThr, predictedMaskDir):
 
@@ -110,17 +110,20 @@ def parseArgs():
   args = vars(parser.parse_args())
   deepLearningModelPath=args["deepLearningModel"]
   if deepLearningModelPath is None:
+
     deepLearningModelPath= os.path.abspath(os.path.join(__file__, "..", "models", "defaultModel.keras"))
   args["deepLearningModel"]= deepLearningModelPath
   if not  os.path.isfile(deepLearningModelPath):
     print("Deep learning model not found. Downloading default model. If you want to use other model "+
-          " use --deepLearningModel.")
-    import requests
+          "set its location with --deepLearningModel.")
+    import requests, gzip
+    from io import BytesIO
     r = requests.get(DOWNLOAD_MODEL_URL)
-    if r.status_code!==200:
+    if r.status_code!=200:
       raise Exception("It was not possible to download model")
     with open(deepLearningModelPath , 'wb') as f:
-    write(r.content)
+      content= gzip.GzipFile(fileobj=BytesIO(r.content) )
+      f.write(content.read())
   return args
 
 def commanLineFun():
@@ -128,7 +131,8 @@ def commanLineFun():
 if __name__=="__main__":
   '''
 LD_LIBRARY_PATH=/home/rsanchez/app/cuda-9.0/lib64:$LD_LIBRARY_PATH
-python ruleOutCoords.py  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -d defaultModel.keras -b 180 -s 1.5   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0021_2x_SumCorr.mrc 
+
+python -m  carbonCleaner.cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -b 180 -s 1   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0021_2x_SumCorr.mrc
 
   '''
   commanLineFun()

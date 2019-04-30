@@ -1,13 +1,12 @@
-import sys
+import sys, os
 from setuptools import setup
 from subprocess import Popen, PIPE
 
 def readme():
-  with open('README.md') as f:
+  readmePath= os.path.abspath(os.path.join(__file__, "..", "README.md") )
+  with open(readmePath) as f:
       return f.read()
       
-if sys.version_info[0] < 3:
-  raise Exception("Must be using Python 3")
 
 nvccProgram = Popen(["which", "nvcc"],stdout=PIPE).stdout.read()
 if nvccProgram== "":
@@ -22,6 +21,33 @@ else:
   elif "release 10.0" in nvccVersion:  # cuda 10
       tensorFlowTarget = "-gpu==1.13.0"
 
+
+
+if sys.version_info[0] < 3:
+  install_requires=[
+          'matplotlib==2.2.3',
+          'scikit-image==0.14.2',
+          'scipy==1.1',
+          'joblib',
+          'tensorflow%s'%tensorFlowTarget,
+          'keras==2.2.4',
+          'pandas==0.24.2',
+          'mrcfile',
+          'requests',
+          'networkx==2.2',
+      ]
+else:
+  install_requires=[
+          'scikit-image==0.14.2',
+          'scipy==1.1',
+          'joblib',
+          'tensorflow%s'%tensorFlowTarget,
+          'keras==2.2.4',
+          'pandas==0.24.2',
+          'mrcfile',
+          'requests'
+      ]
+      
 setup(name='carbonCleaner',
       version='0.1',
       description='Deep learning for cryo-EM micrograph cleaning',
@@ -32,16 +58,7 @@ setup(name='carbonCleaner',
       author_email='rsanchez@cnb.csic.es',
       license='Apache 2.0',
       packages=['carbonCleaner'],
-      install_requires=[
-          'scikit-image==0.14.2',
-          'numpy',
-          'joblib',
-          'tensorflow%s'%tensorFlowTarget,
-          'keras==2.2.4',
-          'pandas==0.24.2',
-          'mrcfile',
-          'requests'
-      ],
+      install_requires= install_requires,
       entry_points={
           'console_scripts': ['cleanMics=carbonCleaner.cleanMics:commanLineFun'],
       },

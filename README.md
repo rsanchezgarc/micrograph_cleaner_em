@@ -1,4 +1,5 @@
-carbonCleaner is a python package designed to segment cryo-EM micrographs into:
+#carbonCleaner
+**carbonCleaner** is a python package designed to segment cryo-EM micrographs into:
 
   -carbon/high-contrast region 
   -normal regions
@@ -11,7 +12,7 @@ cleanMics -h
 
 Example
 
-cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbonCleaner/micsPreds --deepThr 0.5
+`cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbonCleaner/micsPreds --deepThr 0.5`
 
 
 INSTALLATION:
@@ -22,12 +23,14 @@ pip/setup option:
    with CUDA-8,CUDA-9 and CUDA-10
 
 2) Install carbonCleaner
-python setup.py install
+`python setup.py install`
   or
-pip install carbonCleaner
+`pip install carbonCleaner`
 
 3) execute cleanMics command. Ensure CUDA and cudnn libraries are available.
 
+```
 LD_LIBRARY_PATH=/home/rsanchez/app/cuda-9.0/lib64:$LD_LIBRARY_PATH
 cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbonCleaner/micsPreds --deepThr 0.5
+```
 
