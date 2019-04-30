@@ -39,7 +39,8 @@ setup(name='carbonCleaner',
           'tensorflow%s'%tensorFlowTarget,
           'keras==2.2.4',
           'pandas==0.24.2',
-          'mrcfile'
+          'mrcfile',
+          'requests'
       ],
       entry_points={
           'console_scripts': ['cleanMics=carbonCleaner.cleanMics:commanLineFun'],

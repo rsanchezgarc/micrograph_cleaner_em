@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import glob
 from joblib import Parallel, delayed
 
+DOWNLOAD_MODEL_URL="https://github.com/rsanchezgarc/carbonCleaner/blob/master/carbonCleaner/models/defaultModel.keras"
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
          sizeThr, predictedMaskDir):
 
@@ -111,7 +112,15 @@ def parseArgs():
   if deepLearningModelPath is None:
     deepLearningModelPath= os.path.abspath(os.path.join(__file__, "..", "models", "defaultModel.keras"))
   args["deepLearningModel"]= deepLearningModelPath
-  assert  os.path.isfile(deepLearningModelPath), "Error, deepLearningModelPath does not exists"
+  if not  os.path.isfile(deepLearningModelPath):
+    print("Deep learning model not found. Downloading default model. If you want to use other model "+
+          " use --deepLearningModel.")
+    import requests
+    r = requests.get(DOWNLOAD_MODEL_URL)
+    if r.status_code!==200:
+      raise Exception("It was not possible to download model")
+    with open(deepLearningModelPath , 'wb') as f:
+    write(r.content)
   return args
 
 def commanLineFun():
