@@ -1,5 +1,5 @@
-#carbonCleaner
-**carbonCleaner** is a python package designed to segment cryo-EM micrographs into:
+#carbon_cleaner_em
+**carbon_cleaner_em** is a python package designed to segment cryo-EM micrographs into:
 
   -carbon/high-contrast region 
   -normal regions
@@ -12,7 +12,7 @@ To get a complete description of usage execute
 
 Example
 
-`cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbonCleaner/micsPreds --deepThr 0.5`
+`cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbon_cleaner_em/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbon_cleaner_em/micsPreds --deepThr 0.5`
 
 
 ##INSTALLATION:
@@ -23,10 +23,10 @@ Example
    with CUDA-8,CUDA-9 and CUDA-10. Please refere to tensorflow installation guide to ensure cudnn and cuda vesrsions are
    compatible. Tensorflow will be automatically installed later.
 
-2) Install carbonCleaner
-`git clone https://github.com/rsanchezgarc/carbonCleaner.git; cd carbonCleaner; python setup.py install`
+2) Install carbon_cleaner_em
+`git clone https://github.com/rsanchezgarc/carbon_cleaner_em.git; cd carbon_cleaner_em; python setup.py install`
   or
-`pip install carbonCleaner`
+`pip install carbon_cleaner_em`
 
 3) Download deep learning model
   `cleanMics --download`
@@ -34,7 +34,7 @@ Example
 4) execute cleanMics command
 
 ```
-cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbonCleaner/micsPreds --deepThr 0.5
+cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbon_cleaner_em/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbon_cleaner_em/micsPreds --deepThr 0.5
 ```
 
 If cuda not found, export its path

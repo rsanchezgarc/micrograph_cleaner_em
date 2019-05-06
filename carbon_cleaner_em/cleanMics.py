@@ -5,7 +5,7 @@ import glob
 from joblib import Parallel, delayed
 
 DOWNLOAD_MODEL_URL="http://campins.cnb.csic.es/carbon_cleaner/defaultModel.keras.gz"
-DEFAULT_MODEL_PATH=os.path.expanduser("~/.local/share/carbonCleaner/models/")
+DEFAULT_MODEL_PATH=os.path.expanduser("~/.local/share/carbon_cleaner_em/models/")
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
          sizeThr, predictedMaskDir):
 
@@ -132,7 +132,7 @@ def parseArgs():
           parser.exit()
 
   parser.add_argument('--download', action=_DownloadModel,
-                      help='Download default carbonCleaner model. It will be saved at %s'%(DEFAULT_MODEL_PATH) )
+                      help='Download default carbon_cleaner_em model. It will be saved at %s'%(DEFAULT_MODEL_PATH) )
                       
   args = vars(parser.parse_args())
 
@@ -143,7 +143,7 @@ def parseArgs():
     deepLearningModelPath= os.path.join(DEFAULT_MODEL_PATH, "defaultModel.keras")
   args["deepLearningModel"]= deepLearningModelPath
   if not  os.path.isfile(deepLearningModelPath):
-    print(("Deep learning model not found at %s. Downloading default model with --download. or "+
+    print(("Deep learning model not found at %s. Downloading default model with --download or "+
           "indicate its location with --deepLearningModel.")%DEFAULT_MODEL_PATH )
     sys.exit(1)
 
@@ -155,7 +155,7 @@ if __name__=="__main__":
   '''
 LD_LIBRARY_PATH=/home/rsanchez/app/cuda-9.0/lib64:$LD_LIBRARY_PATH
 
-python -m  carbonCleaner.cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbonCleaner/coordsCleaned/ -b 180 -s 1   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0021_2x_SumCorr.mrc
+python -m  carbon_cleaner_em.cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbon_cleaner_em/coordsCleaned/ -b 180 -s 1   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0021_2x_SumCorr.mrc
 
   '''
   commanLineFun()

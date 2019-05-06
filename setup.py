@@ -52,19 +52,19 @@ else:
           'requests'
       ]
                  
-setup(name='carbonCleaner',
+setup(name='carbon_cleaner_em',
       version='0.1',
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
       keywords='cryo-EM deep learning',
-      url='https://github.com/rsanchezgarc/carbonCleaner',
+      url='https://github.com/rsanchezgarc/carbon_cleaner_em',
       author='Ruben Sanchez-Garcia',
       author_email='rsanchez@cnb.csic.es',
       license='Apache 2.0',
-      packages=['carbonCleaner'],
+      packages=['carbon_cleaner_em'],
       install_requires= install_requires,
       entry_points={
-          'console_scripts': ['cleanMics=carbonCleaner.cleanMics:commanLineFun'],
+          'console_scripts': ['cleanMics=carbon_cleaner_em.cleanMics:commanLineFun'],
       },
       include_package_data=True,
       zip_safe=False)
