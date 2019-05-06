@@ -5,6 +5,7 @@ import glob
 from joblib import Parallel, delayed
 
 DOWNLOAD_MODEL_URL="http://campins.cnb.csic.es/carbon_cleaner/defaultModel.keras.gz"
+DEFAULT_MODEL_PATH=os.path.expanduser("~/.local/share/carbonCleaner/models/")
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
          sizeThr, predictedMaskDir):
 
@@ -107,23 +108,45 @@ def parseArgs():
   parser.add_argument('--predictedMaskDir', type=str, nargs='?', required=False,
                       help='directory to store the predicted masks. If a given mask already existed, it will be used instead'+
                            ' of a new prediction')
+
+
+  class _DownloadModel(argparse.Action):
+      def __init__(self, option_strings, dest=argparse.SUPPRESS, default=argparse.SUPPRESS, help=None):
+        super(_DownloadModel, self).__init__( option_strings=option_strings, dest=dest, default=default,
+                                              nargs=0,  help=help)
+
+      def __call__(self, parser, namespace, values, option_string=None):
+          import requests, gzip
+          from io import BytesIO
+          r = requests.get(DOWNLOAD_MODEL_URL)
+          if r.status_code!=200:
+            raise Exception("It was not possible to download model")
+          if not os.path.exists(DEFAULT_MODEL_PATH):
+            os.makedirs(DEFAULT_MODEL_PATH) 
+          deepLearningModelPath= os.path.join(DEFAULT_MODEL_PATH, "defaultModel.keras")
+          print("DOWNLAODING MODEL at %s"%(DEFAULT_MODEL_PATH) )
+          with open(deepLearningModelPath , 'wb') as f:
+            content= gzip.GzipFile(fileobj=BytesIO(r.content) )
+            f.write(content.read())
+          print("DOWNLOADED!!")
+          parser.exit()
+
+  parser.add_argument('--download', action=_DownloadModel,
+                      help='Download default carbonCleaner model. It will be saved at %s'%(DEFAULT_MODEL_PATH) )
+                      
   args = vars(parser.parse_args())
+
   deepLearningModelPath=args["deepLearningModel"]
   if deepLearningModelPath is None:
-
-    deepLearningModelPath= os.path.abspath(os.path.join(__file__, "..", "models", "defaultModel.keras"))
+    if not os.path.exists(DEFAULT_MODEL_PATH):
+      os.makedirs(DEFAULT_MODEL_PATH)
+    deepLearningModelPath= os.path.join(DEFAULT_MODEL_PATH, "defaultModel.keras")
   args["deepLearningModel"]= deepLearningModelPath
   if not  os.path.isfile(deepLearningModelPath):
-    print("Deep learning model not found. Downloading default model. If you want to use other model "+
-          "set its location with --deepLearningModel.")
-    import requests, gzip
-    from io import BytesIO
-    r = requests.get(DOWNLOAD_MODEL_URL)
-    if r.status_code!=200:
-      raise Exception("It was not possible to download model")
-    with open(deepLearningModelPath , 'wb') as f:
-      content= gzip.GzipFile(fileobj=BytesIO(r.content) )
-      f.write(content.read())
+    print(("Deep learning model not found at %s. Downloading default model with --download. or "+
+          "indicate its location with --deepLearningModel.")%DEFAULT_MODEL_PATH )
+    sys.exit(1)
+
   return args
 
 def commanLineFun():

@@ -4,7 +4,7 @@ from skimage.util import pad
 from skimage.transform import resize
 
 MODEL_IMG_SIZE=256
-DESIRED_PARTICLE_SIZE= 32
+DESIRED_PARTICLE_SIZE= 16
 
 
 def normalizeImg(img, squeezeToRange=False, sigmoidInsteadTanh=True, iqrRange=(25,75)):
