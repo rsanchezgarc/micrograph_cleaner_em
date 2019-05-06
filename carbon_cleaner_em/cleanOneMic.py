@@ -19,7 +19,6 @@ def cleanOneMic(micFname, inputCoordsFname, outCoordsFname, predictedMaskFname, 
       
   maskPredictor= MASK_PREDICTOR_HANDLER
 
-  inputCoords= loadCoords(inputCoordsFname, downFactor)
   if predictedMaskFname is not None and os.path.isfile(predictedMaskFname):
     print("WARNING: mask already predicted for %s. Using it instead computing a new predicted mask"%(micFname))
     predictedMask= loadMic( predictedMaskFname)
@@ -30,10 +29,11 @@ def cleanOneMic(micFname, inputCoordsFname, outCoordsFname, predictedMaskFname, 
     if predictedMaskFname is not None:
       writeMic(predictedMaskFname, predictedMask)
   
-  downFactor= float(internalDownFactor* downFactor)
-  boxSize= boxSize/downFactor
-  inputCoords= loadCoords(inputCoordsFname, downFactor)
-  filteredCoords= filterCoords( inputCoords, predictedMask, boxSize, deepThr, sizeThr)
+  if inputCoordsFnames is not None:
+    downFactor= float(internalDownFactor* downFactor)
+    boxSize= boxSize/downFactor
+    inputCoords= loadCoords(inputCoordsFname, downFactor)
+    filteredCoords= filterCoords( inputCoords, predictedMask, boxSize, deepThr, sizeThr)
 
-  writeCoords(outCoordsFname, filteredCoords, downFactor)
+    writeCoords(outCoordsFname, filteredCoords, downFactor)
 

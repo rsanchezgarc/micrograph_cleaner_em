@@ -12,7 +12,7 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
 
   micsFnames=getFilesInPath(inputMicsPath, ["mrc", "tif"])
   inputCoordsFnames=getFilesInPath(inputCoordsDir, ["txt", "tab", "pos"])
-  coordsExtension= inputCoordsFnames[0].split(".")[-1]
+  coordsExtension= inputCoordsFnames[0].split(".")[-1] if inputCoordsFnames is not None else None
   matchingFnames= getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskDir, coordsExtension)
   assert len(matchingFnames)>0, "Error, there are no matching coordinate-micrograph files"
   from .cleanOneMic import cleanOneMic
@@ -21,7 +21,8 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
                                           for multipleNames in matchingFnames.values() )
                                           
 def getFilesInPath(pathsList, extensions):
-
+  if pathsList is None:
+    return None
   if isinstance(pathsList, str) or len(pathsList)==1:
     if not isinstance(pathsList, str) and len(pathsList)==1:
       pathsList= pathsList[0]
@@ -46,17 +47,20 @@ def getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskD
   for fname in micsFnames:
     micName= getMicName(fname)
     print(micName)
-    inCoordsFname= os.path.join(inputCoordsDir, micName+"."+coordsExtension)
-    if os.path.isfile(inCoordsFname):
-      outCoordsFname= os.path.join(outputCoordsDir, micName+"."+coordsExtension)
-      if predictedMaskDir is not None:
-        predictedMaskFname= os.path.join(predictedMaskDir, micName+".mrc")
+    if inputCoordsDir is not None:
+      inCoordsFname= os.path.join(inputCoordsDir, micName+"."+coordsExtension)
+      if os.path.isfile(inCoordsFname):
+        outCoordsFname= os.path.join(outputCoordsDir, micName+"."+coordsExtension)
+        if predictedMaskDir is not None:
+          predictedMaskFname= os.path.join(predictedMaskDir, micName+".mrc")
+        else:
+          predictedMaskFname=None
+        matchingFnames[micName]= (fname, inCoordsFname, outCoordsFname, predictedMaskFname)  
       else:
-        predictedMaskFname=None      
-      matchingFnames[micName]= (fname, inCoordsFname, outCoordsFname, predictedMaskFname)  
+        print("Warning, no coordinates for micrograph %s"%(fname))
     else:
-      print("Warning, no coordinates for micrograph %s"%(fname))
-
+        predictedMaskFname= os.path.join(predictedMaskDir, micName+".mrc")
+        matchingFnames[micName]= (fname, None, None, predictedMaskFname)  
   return matchingFnames
     
 def parseArgs():
@@ -81,11 +85,11 @@ def parseArgs():
   parser.add_argument('-i', '--inputMicsPath', type=str,  nargs='+', required=True,
                       help='path to input micrograph(s) were coordinates were picked (.mrc or .tif)')
 
-  parser.add_argument('-c', '--inputCoordsDir', type=str, required=True,
+  parser.add_argument('-c', '--inputCoordsDir', type=str, required=False,
                       help='input coordinates directory (.pos or tab separated x y). Filenames '+
                            'must agree with input micrographs except for extension')
 
-  parser.add_argument('-o', '--outputCoordsDir', type=str,  required=True,
+  parser.add_argument('-o', '--outputCoordsDir', type=str,  required=False,
                       help='output coordinates directory')
 
   parser.add_argument('-d', '--deepLearningModel', type=str,  nargs='?', required=False,
@@ -135,7 +139,7 @@ def parseArgs():
                       help='Download default carbon_cleaner_em model. It will be saved at %s'%(DEFAULT_MODEL_PATH) )
                       
   args = vars(parser.parse_args())
-
+  print(args)
   deepLearningModelPath=args["deepLearningModel"]
   if deepLearningModelPath is None:
     if not os.path.exists(DEFAULT_MODEL_PATH):
@@ -147,6 +151,16 @@ def parseArgs():
           "indicate its location with --deepLearningModel.")%DEFAULT_MODEL_PATH )
     sys.exit(1)
 
+  if args["inputCoordsDir"] is None and args["predictedMaskDir"] is None:
+    raise Exception("Either inputCoordsDir or predictedMaskDir (or both) must be provided")
+    parser.print_help()
+  if args["inputCoordsDir"] is None and args["outputCoordsDir"] is not None:
+    raise Exception("Error, if inputCoordsDir provided, then outputCoordsDir must also be provided")
+    parser.print_help()
+    
+  if args["outputCoordsDir"] is None and args["inputCoordsDir"] is not None:
+    raise Exception("Error, if outputCoordsDir provided, then inputCoordsDir must also be provided")
+    parser.print_help()
   return args
 
 def commanLineFun():
