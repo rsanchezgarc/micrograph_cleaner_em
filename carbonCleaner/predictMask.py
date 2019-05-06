@@ -2,8 +2,9 @@ import os, sys
 import numpy as np
 import keras
 from skimage.util import view_as_windows
-from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, normalizeImg, MODEL_IMG_SIZE
+from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, normalizeImg
 
+from .config import MODEL_IMG_SIZE
 
 BATCH_SIZE=8
 

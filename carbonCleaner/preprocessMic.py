@@ -3,8 +3,7 @@ from scipy.stats import iqr
 from skimage.util import pad
 from skimage.transform import resize
 
-MODEL_IMG_SIZE=256
-DESIRED_PARTICLE_SIZE= 16
+from .config import MODEL_IMG_SIZE, DESIRED_PARTICLE_SIZE
 
 
 def normalizeImg(img, squeezeToRange=False, sigmoidInsteadTanh=True, iqrRange=(25,75)):
