@@ -2,7 +2,7 @@
 **carbon_cleaner_em** is a python package designed to segment cryo-EM micrographs into:
 
   -carbon/high-contrast region 
-  -normal regions
+  -good regions
   
 so that incorrectly picked coordinates can be easily ruled out
 
@@ -12,24 +12,23 @@ To get a complete description of usage execute
 
 Example
 
-`cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbon_cleaner_em/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbon_cleaner_em/micsPreds --deepThr 0.5`
+`cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b 180 -s 1.0   -i  /path/to/micrographs/ --predictedMaskDir path/to/store/masks --deepThr 0.5`
 
 
 ##INSTALLATION:
-
 
 ###anaconda (recommended)
 
 1) Install anaconda Python 3x version from https://www.anaconda.com/distribution/
 
 2) Create an environment for carbon_cleaner
-  `conda create -n env_carbon_cleaner_em python=3.7`
+  `conda create -n env_carbon_cleaner_em python=3.6`
 
 3) Activate environment (each time you want to use carbon_cleaner you will need to activate it)
   `conda activate env_carbon_cleaner_em`
   
 4) Install carbon_cleaner_em from repository
-`conda install ?????? -c anaconda`
+  `conda install ?????? -c anaconda`
 
 5) Download deep learning model
   `cleanMics --download`
@@ -38,17 +37,30 @@ Example
   
 ###pip/source option:
 
-This option is required for python2 installation.
 
-1) install cuda and cudnn so that tensorflow (https://www.tensorflow.org/) can be executed. This program is compatible
-   with CUDA-8,CUDA-9 and CUDA-10. Please refere to tensorflow installation guide to ensure cudnn and cuda versions are
-   compatible. Tensorflow version will be automatically selected according your cuda version and installed later.
+1) install CUDA and cudnn in such a way that tensorflow (https://www.tensorflow.org/) can be executed. 
+   Carbon_cleaner is compatible with CUDA-8,CUDA-9 and CUDA-10.
+   Tensorflow version will be automatically selected according your CUDA version and installed later.
+   CUDA is available at https://developer.nvidia.com/cuda-toolkit and cudnn is available at
+   https://developer.nvidia.com/cudnn
+   Easy cudnn instalation can be performed automatically at step 2 using python module cudnnenv
 
+1.1) (optional) create virtual environment
+`pip install virtualenv`
+`virtualenv --system-site-packages -p python3 ./venv`
+`source ./venv/bin/activate`
 2) Install carbon_cleaner_em
 `git clone https://github.com/rsanchezgarc/carbon_cleaner_em.git; cd carbon_cleaner_em; python setup.py install`
   or
 `pip install carbon_cleaner_em`
 
+2.1) If cudnn not installed yet, install install cudnnenv
+ `pip install cudnnenv`
+ 
+ and execute
+ `cudnnenv install [VERSION]`, where recommended versions are "v6-cuda8" for CUDA-8, "v7.0.1-cuda9" for CUDA-9 and
+"v7.4.1-cuda10" for CUDA-10.
+ 
 3) Download deep learning model
   `cleanMics --download`
   
@@ -63,7 +75,9 @@ This option is required for python2 installation.
 
 3) Install deepLearningToolkit either from plugin manager or from command line:
   `scipion installb deepLearningToolkit`
-  
+
+4) Ready!
+
 ##USAGE
 
 Carbon_cleaner employs an U-net-based deep learning model to segmentate micrographs into good regions and bad regions. Thus,

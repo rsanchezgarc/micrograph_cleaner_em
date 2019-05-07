@@ -65,7 +65,25 @@ def getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskD
     
 def parseArgs():
   import argparse
-  parser = argparse.ArgumentParser(description='Rule out coordiantes that were selected in carbon/contaminated regions')
+  
+  example_text = '''examples:
+  
+  + Donwload deep learning model
+cleanMics --download
+    
+  + Compute masks from imput micrographs and store them
+cleanMics  -c -b $BOX_SIXE  -i  /path/to/micrographs/ --predictedMaskDir path/to/store/masks
+   
+  + Rule out input bad coordinates (threshold<0.5) and store them into path/to/outputCoords
+cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOWN_FACTOR  -i  /path/to/micrographs/ --deepThr 0.5
+
++ Compute goodness scores from input coordinates and store them into path/to/outputCoords
+  cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOWN_FACTOR  -i  /path/to/micrographs/ --deepThr 0.5
+     
+'''
+ 
+  parser = argparse.ArgumentParser(description='Compute goodness score for picked coordinates. Rule out bad coordinates',
+                                   epilog=example_text, formatter_class=argparse.RawDescriptionHelpFormatter)
   def getRestricetedFloat(minVal=0, maxVal=1):
     def restricted_float(x):
       x = float(x)
@@ -82,8 +100,9 @@ def parseArgs():
        parser.error("file %s extension not allowed: %s"%( (fname,)+(" ".join(choices),) ))
     return os.path.abspath(os.path.expanduser(fname))
     
-  parser.add_argument('-i', '--inputMicsPath', type=str,  nargs='+', required=True,
-                      help='path to input micrograph(s) were coordinates were picked (.mrc or .tif)')
+  parser.add_argument('-i', '--inputMicsPath',  metavar='micFname', type=str,  nargs='+', required=True,
+                      help='micrograph(s) filenames where coordinates were picked (.mrc or .tif).\n'+
+                      'Linux wildcards or several files are allowed')
 
   parser.add_argument('-c', '--inputCoordsDir', type=str, required=False,
                       help='input coordinates directory (.pos or tab separated x y). Filenames '+
@@ -93,19 +112,20 @@ def parseArgs():
                       help='output coordinates directory')
 
   parser.add_argument('-d', '--deepLearningModel', type=str,  nargs='?', required=False,
-                      help='deep learning model filename')
+                      help=('(optional) deep learning model filename. If not provided, model at '+
+                           'will be employed %s')%(DEFAULT_MODEL_PATH))
                                                              
   parser.add_argument('-b', '--boxSize', metavar='PXLs', type=int,  required=True,
                       help='particles box size in pixels')
                       
   parser.add_argument('-s', '--downFactor', type=float, nargs='?', required=False, default=1,
-                      help='micrograph downsampling factor to scale coordinates')
+                      help='(optional) micrograph downsampling factor to scale coordinates, Default no scaling')
                       
   parser.add_argument('--deepThr', type=getRestricetedFloat(), nargs='?', default=None, required=False,
-                      help='deep learning threshold to rule out a coordinate. The bigger the more coordiantes'+
+                      help='(optional) deep learning threshold to rule out a coordinate. The bigger the more coordiantes'+
                            'will be rule out. Ranges 0..1. Recommended 0.5')
                            
-  parser.add_argument('--sizeThr', type=getRestricetedFloat(0,1e5), nargs='?', default=0.8, required=False,
+  parser.add_argument('--sizeThr', type=getRestricetedFloat(0,1.), nargs='?', default=0.8, required=False,
                       help='Failure threshold. Fraction of the micrograph predicted as contamination to ignore predictions. '+
                            '. Ranges 0..1. Default 0.8')
                            
