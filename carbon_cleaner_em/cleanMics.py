@@ -1,15 +1,14 @@
 from __future__ import absolute_import, division, print_function
 import sys, os
-import matplotlib.pyplot as plt
 import glob
 from joblib import Parallel, delayed
 
 DOWNLOAD_MODEL_URL="http://campins.cnb.csic.es/carbon_cleaner/defaultModel.keras.gz"
 DEFAULT_MODEL_PATH=os.path.expanduser("~/.local/share/carbon_cleaner_em/models/")
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
-         sizeThr, predictedMaskDir):
+         sizeThr, predictedMaskDir, gpus="0"):
 
-
+  selectGpus(gpus)
   micsFnames=getFilesInPath(inputMicsPath, ["mrc", "tif"])
   inputCoordsFnames=getFilesInPath(inputCoordsDir, ["txt", "tab", "pos"])
   coordsExtension= inputCoordsFnames[0].split(".")[-1] if inputCoordsFnames is not None else None
@@ -17,9 +16,15 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
   assert len(matchingFnames)>0, "Error, there are no matching coordinate-micrograph files"
   from .cleanOneMic import cleanOneMic
   Parallel(n_jobs=1)( delayed(cleanOneMic)( * multipleNames+( deepLearningModel, 
-                                              boxSize, downFactor, deepThr,sizeThr) )
+                                              boxSize, downFactor, deepThr,sizeThr, gpus) )
                                           for multipleNames in matchingFnames.values() )
-                                          
+def selectGpus(gpusStr):
+  print("updating environ to select gpus %s" % (gpusStr))
+  if gpusStr == '':
+      os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+  else:
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpusStr)
+                                         
 def getFilesInPath(pathsList, extensions):
   if pathsList is None:
     return None
@@ -72,7 +77,7 @@ def parseArgs():
 cleanMics --download
     
   + Compute masks from imput micrographs and store them
-cleanMics  -c -b $BOX_SIXE  -i  /path/to/micrographs/ --predictedMaskDir path/to/store/masks
+cleanMics  -c path/to/inputCoords/ -b $BOX_SIXE  -i  /path/to/micrographs/ --predictedMaskDir path/to/store/masks
    
   + Rule out input bad coordinates (threshold<0.5) and store them into path/to/outputCoords
 cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOWN_FACTOR  -i  /path/to/micrographs/ --deepThr 0.5
@@ -100,20 +105,20 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
        parser.error("file %s extension not allowed: %s"%( (fname,)+(" ".join(choices),) ))
     return os.path.abspath(os.path.expanduser(fname))
     
-  parser.add_argument('-i', '--inputMicsPath',  metavar='micFname', type=str,  nargs='+', required=True,
+  parser.add_argument('-i', '--inputMicsPath',  metavar='MIC_FNAME', type=str,  nargs='+', required=True,
                       help='micrograph(s) filenames where coordinates were picked (.mrc or .tif).\n'+
-                      'Linux wildcards or several files are allowed')
+                      'Linux wildcards or several files are allowed.')
 
   parser.add_argument('-c', '--inputCoordsDir', type=str, required=False,
                       help='input coordinates directory (.pos or tab separated x y). Filenames '+
-                           'must agree with input micrographs except for extension')
+                           'must agree with input micrographs except for file extension.')
 
   parser.add_argument('-o', '--outputCoordsDir', type=str,  required=False,
-                      help='output coordinates directory')
+                      help='output coordinates directory.')
 
-  parser.add_argument('-d', '--deepLearningModel', type=str,  nargs='?', required=False,
-                      help=('(optional) deep learning model filename. If not provided, model at '+
-                           'will be employed %s')%(DEFAULT_MODEL_PATH))
+  parser.add_argument('-d', '--deepLearningModel', metavar='MODEL_PATH', type=str,  nargs='?', required=False,
+                      help=('(optional) deep learning model filename. If not provided, model at %s '+
+                           'will be employed')%(DEFAULT_MODEL_PATH))
                                                              
   parser.add_argument('-b', '--boxSize', metavar='PXLs', type=int,  required=True,
                       help='particles box size in pixels')
@@ -133,7 +138,9 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
                       help='directory to store the predicted masks. If a given mask already existed, it will be used instead'+
                            ' of a new prediction')
 
-
+  parser.add_argument('-g', '--gpus', metavar='GPU_Ids', type=str,  required=False, default="0",
+                      help='GPU ids to employ. Comma separated list. E.g. "0,1". Default 0. use -1 for CPU-only computation')
+                      
   class _DownloadModel(argparse.Action):
       def __init__(self, option_strings, dest=argparse.SUPPRESS, default=argparse.SUPPRESS, help=None):
         super(_DownloadModel, self).__init__( option_strings=option_strings, dest=dest, default=default,
@@ -159,7 +166,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
                       help='Download default carbon_cleaner_em model. It will be saved at %s'%(DEFAULT_MODEL_PATH) )
                       
   args = vars(parser.parse_args())
-  print(args)
+#  print(args)
   deepLearningModelPath=args["deepLearningModel"]
   if deepLearningModelPath is None:
     if not os.path.exists(DEFAULT_MODEL_PATH):

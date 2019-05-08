@@ -42,7 +42,7 @@ To get a complete description of usage execute
    Carbon_cleaner is compatible with CUDA-8,CUDA-9 and CUDA-10.
    Tensorflow version will be automatically selected according your CUDA version and installed later.
    CUDA is available at https://developer.nvidia.com/cuda-toolkit and cudnn is available at
-   https://developer.nvidia.com/cudnn
+   https://developer.nvidia.com/cudnn.  
    Easy cudnn instalation can be performed automatically at step 2 using python module cudnnenv
 
 1.1) (optional) create virtual environment  
@@ -55,7 +55,7 @@ source ./env_carbon_cleaner_em/bin/activate
 ```
 git clone https://github.com/rsanchezgarc/carbon_cleaner_em.git
 cd carbon_cleaner_em
-python setup.py install` 
+python setup.py install
 ```
   or  
 `pip install carbon_cleaner_em`
@@ -89,22 +89,60 @@ python setup.py install`
 Carbon Cleaner employs an U-net-based deep learning model to segmentate micrographs into good regions and bad regions. Thus, it is mainly used as a post-processing step after particle picking in which coordinates selected in high contrast artefacts, such as carbon, will be ruled out. Additionally, it can be employed to generate binary masks so that particle pickers can be prevented from considering problematic regions.
 Thus, carbon_cleaner employs as a mandatory argument a(some) micrograph(s) fileneame(s) and the particle size in pixels. Additionally it can recive as input:
 
-1) A directory where picked coordinates are located and another directory where scored/cleaned coordiantes will be saved. Coordinates will be saved in pos format or plain text (columns whith header colnames x and y) are located. There must be one different coordinates file for each micrograph named as the micrograph. 
-E.g. /path/to/mics/mics_1.mrc /path/to/coords
+1) A directory where picked coordinates are located and another directory where scored/cleaned coordiantes will be saved. Coordinates will be saved in pos format or plain text (columns whith header colnames x and y) are located. 
+There must be one different coordinates file for each micrograph named as the micrograph and the output coordiantes will preserve the naming.  
+E.g. -c path/to/inputCoordsDirectory/ -o /path/to/outputCoordsDirectory/  
+Allowed formats are xmipp pos and raw text tab separated with at least two columns named as xcoor, ycoor in the header.
+Raw text file example:
+```
+micFname1.tab:
+###########################################
+xcoor ycoor otherInfo1 otherInfo2
+12  143  -1  0.1
+431  4341  0  0.2
+323  321  1  0.213
+###########################################
+```
+2) A directory where predicted masks will be saved (mrc format).
+E.g. --predictedMaskDir path/where/predictedMasksWillBeSaved/  
 
-2) A directory where predicted masks will be sabed
+3) A downsampling factor (can be less than 1 if actually upsampling was performed) in case the coordinates where picked from
+micrographs at different scale.  
+E.g. -s 1.5 #will downsample coordiantes by a factor 1.5 and then it will apply the predicted mask that is as big as the imput micrographs  
 
-3) Both 1) and 2)
+4) Any combination of previous options.  
+
+Trained carbon cleaner model is available at http://campins.cnb.csic.es/carbon_cleaner/ and can be automatically download executing  
+`cleanMics --download`
 
 #TO CONTINUE
+
+Beware that if you installed carbon_cleaner using pip/source, then CUDA and cudnn libraries should be
+available prior execution, so if CUDA is not found, export its path prior execution  
+```
+export LD_LIBRARY_PATH=/path/to/cuda/cuda-9.0/lib64:$LD_LIBRARY_PATH
+```
+and then execute `cleanMics`  
+
+#### Examples
+
+```
+#Donwload deep learning model
+cleanMics --download
+    
+#Compute masks from imput micrographs and store them
+cleanMics  -c path/to/inputCoords/ -b $BOX_SIXE  -i  /path/to/micrographs/ --predictedMaskDir path/to/store/masks
+
+#Rule out input bad coordinates (threshold<0.5) and store them into path/to/outputCoords
+cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOWN_FACTOR  -i  /path/to/micrographs/ --deepThr 0.5
+
+#Compute goodness scores from input coordinates and store them into path/to/outputCoords
+cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOWN_FACTOR  -i  /path/to/micrographs/ --deepThr 0.5     
+```
 
 ```
 cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbon_cleaner_em/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbon_cleaner_em/micsPreds --deepThr 0.5
 ```
 
-If cuda not found, export its path prior execution
-```
-export LD_LIBRARY_PATH=/path/to/cuda/cuda-9.0/lib64:$LD_LIBRARY_PATH
-```
-and then execute `cleanMics`
+
 
