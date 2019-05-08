@@ -28,7 +28,7 @@ To get a complete description of usage execute
   `conda activate env_carbon_cleaner_em`
   
 4) Install carbon_cleaner_em from repository  
-  `conda install ?????? -c anaconda`
+  ` conda install -c rsanchez1369 carbon-cleaner-em`
 
 5) Download deep learning model  
   `cleanMics --download`

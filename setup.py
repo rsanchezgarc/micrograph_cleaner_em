@@ -53,7 +53,7 @@ else:
       ]
                  
 setup(name='carbon_cleaner_em',
-      version='0.1',
+      version='0.12',
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
       keywords='cryo-EM deep learning',
