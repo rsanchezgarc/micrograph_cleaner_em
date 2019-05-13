@@ -23,20 +23,20 @@ def normalizeImg(img, squeezeToRange=False, sigmoidInsteadTanh=True, iqrRange=(2
   return newImg
 
 
-
 def padToRegularSize(inputMic, windowSide, strideDiv ):
   stride= windowSide//strideDiv
   height, width= inputMic.shape[:2]
-  #Half model_image_size is always padded
-  height+= 2*stride
-  width+= 2*stride
-  paddingHeight= (stride, stride+ (windowSide- height%windowSide) )
-  paddingWidth=  (stride, stride+ (windowSide- width%windowSide)  ) 
+
+#  paddingHeight= (stride, stride- height%windowSide )
+#  paddingWidth=  (stride, stride- width%windowSide  )
+
+  paddingHeight= (0, stride- height%windowSide )
+  paddingWidth=  (0, stride- width%windowSide  )
+  
   paddingValues= [paddingHeight, paddingWidth]
-  paddedMic= pad(inputMic, paddingValues, mode="constant")
+  paddedMic= pad(inputMic, paddingValues, mode="constant", constant_values= np.min(inputMic) )
   return paddedMic, paddingValues
-
-
+  
 def getDownFactor(particleSize):
   return particleSize/float(DESIRED_PARTICLE_SIZE)
   
