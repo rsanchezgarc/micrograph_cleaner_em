@@ -13,8 +13,9 @@ class MaskPredictor(object):
   def __init__(self, deepLearningModelFname, boxSize, gpus):
     self.model= keras.models.load_model(deepLearningModelFname, {})
     self.boxSize= boxSize
-    if len(gpus.split(","))>1:
-      self.model= keras.utils.multi_gpu_model(self.model, gpus=gpus)
+    if gpus is not None:
+      if len(gpus)>1:
+        self.model= keras.utils.multi_gpu_model(self.model, gpus=len(gpus))
       
   def getDownFactor(self):
     return getDownFactor(self.boxSize)

@@ -1,10 +1,17 @@
 import numpy as np
-from scipy.stats import iqr
+
 from skimage.util import pad
 from skimage.transform import resize
 
 from .config import MODEL_IMG_SIZE, DESIRED_PARTICLE_SIZE
 
+try:
+  from scipy.stats import iqr
+except ImportError:
+  def iqr(x, rng=(25,75)):
+    q1_x = np.percentile(x, rng[0])
+    q3_x = np.percentile(x, rng[1])
+    return q3_x - q1_x
 
 def normalizeImg(img, squeezeToRange=False, sigmoidInsteadTanh=True, iqrRange=(25,75)):
   '''

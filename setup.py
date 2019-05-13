@@ -7,7 +7,6 @@ def readme():
   readmePath= os.path.abspath(os.path.join(__file__, "..", "README.md") )
   with open(readmePath) as f:
       return f.read()
-      
 
 nvccProgram = Popen(["which", "nvcc"],stdout=PIPE).stdout.read()
 if nvccProgram== "":
@@ -53,9 +52,10 @@ else:
       ]
                  
 setup(name='carbon_cleaner_em',
-      version='0.12',
+      version='0.14',
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
+      long_description_content_type="text/markdown",
       keywords='cryo-EM deep learning',
       url='https://github.com/rsanchezgarc/carbon_cleaner_em',
       author='Ruben Sanchez-Garcia',

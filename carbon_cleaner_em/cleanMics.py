@@ -23,7 +23,7 @@ def selectGpus(gpusStr):
   if gpusStr == '':
       os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
   else:
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpusStr)
+    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpusStr).replace(" ", "")
                                          
 def getFilesInPath(pathsList, extensions):
   if pathsList is None:
@@ -189,6 +189,9 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
   if args["outputCoordsDir"] is None and args["inputCoordsDir"] is not None:
     raise Exception("Error, if outputCoordsDir provided, then inputCoordsDir must also be provided")
     parser.print_help()
+
+  if "-1" in args["gpus"]:
+    args["gpus"]=""
   return args
 
 def commanLineFun():

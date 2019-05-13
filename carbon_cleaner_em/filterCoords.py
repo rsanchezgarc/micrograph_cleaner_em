@@ -31,6 +31,6 @@ def filterCoords( inputCoords, predictedMask, boxSize, deepThr, sizeThr):
     filteredCoords= inputCoords.iloc[keepIndices,:]
   else:
     filteredCoords= inputCoords
-  filteredCoords= filteredCoords.assign(deepSegGoodRegionScore=1-np.array(scores))
+  filteredCoords= filteredCoords.assign(goodRegionScore=1-np.array(scores))
   return filteredCoords
   
