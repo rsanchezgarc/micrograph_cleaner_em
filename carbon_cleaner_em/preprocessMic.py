@@ -27,9 +27,6 @@ def padToRegularSize(inputMic, windowSide, strideDiv ):
   stride= windowSide//strideDiv
   height, width= inputMic.shape[:2]
 
-#  paddingHeight= (stride, stride- height%windowSide )
-#  paddingWidth=  (stride, stride- width%windowSide  )
-
   paddingHeight= (0, stride- height%windowSide )
   paddingWidth=  (0, stride- width%windowSide  )
   
