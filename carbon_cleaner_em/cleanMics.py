@@ -127,7 +127,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
                       help='(optional) micrograph downsampling factor to scale coordinates, Default no scaling')
                       
   parser.add_argument('--deepThr', type=getRestricetedFloat(), nargs='?', default=None, required=False,
-                      help='(optional) deep learning threshold to rule out coordinates (coord_score<=deepThr-->accepted). "+
+                      help='(optional) deep learning threshold to rule out coordinates (coord_score<=deepThr-->accepted). '+
                            'The smaller the treshold '+
                            'the more coordinates will be ruled out. Ranges 0..1. Recommended 0.3')
                            
