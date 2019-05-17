@@ -1,8 +1,8 @@
 {% set name = "carbon-cleaner-em" %}
-{% set version = "0.14" %}
+{% set version = "0.15" %}
 {% set file_ext = "tar.gz" %}
 {% set hash_type = "sha256" %}
-{% set hash_value = "3192264e56108f0f9badbe078a8bb9bbe454ae646a5354580c2ab5e3e7f38adc" %}
+{% set hash_value = "48934b09deb0f714e52d20d571f9d2841d642d50f409e81f6b3f1aa8586a84e4" %}
 package:
   name: '{{ name|lower }}'
   version: '{{ version }}'

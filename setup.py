@@ -52,7 +52,7 @@ else:
       ]
                  
 setup(name='carbon_cleaner_em',
-      version='0.14',
+      version='0.15',
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
       long_description_content_type="text/markdown",
