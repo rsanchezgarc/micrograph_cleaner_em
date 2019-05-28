@@ -131,7 +131,7 @@ and then execute `cleanMics`
 cleanMics --download
     
 #Compute masks from imput micrographs and store them
-cleanMics  -c path/to/inputCoords/ -b $BOX_SIXE  -i  /path/to/micrographs/ --predictedMaskDir path/to/store/masks
+cleanMics -b $BOX_SIXE  -i  /path/to/micrographs/ --predictedMaskDir path/to/store/masks
 
 #Rule out input bad coordinates (threshold<0.5) and store them into path/to/outputCoords
 cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOWN_FACTOR  -i  /path/to/micrographs/ --deepThr 0.5
