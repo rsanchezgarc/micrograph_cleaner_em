@@ -9,3 +9,4 @@
 /*.egg
 /build/
 *.keras
+.idea

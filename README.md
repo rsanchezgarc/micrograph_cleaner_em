@@ -1,7 +1,8 @@
-# Carbon Cleaner
-**Carbon Cleaner** (carbon_cleaner_em) is a python package designed to segment cryo-EM micrographs into:
+# MicrographCleaner
+**MicrographCleaner** (micrograph_cleaner_em) is a python package designed to segment cryo-EM
+ micrographs into:
 
-  - carbon/high-contrast region 
+  - carbon/high-contrast or contaminated regions 
   - good regions
   
 so that incorrectly picked coordinates can be easily ruled out
@@ -21,14 +22,14 @@ To get a complete description of usage execute
 
 1) Install anaconda Python 3x version from https://www.anaconda.com/distribution/
 
-2) Create an environment for carbon_cleaner  
-  `conda create -n env_carbon_cleaner_em python=3.6`
+2) Create an environment for MicrographCleaner  
+  `conda create -n env_micrograph_cleaner_em python=3.6`
 
-3) Activate environment (each time you want to use carbon_cleaner you will need to activate it)  
-  `conda activate env_carbon_cleaner_em`
+3) Activate environment (each time you want to use micrograph_cleaner you will need to activate it)  
+  `conda activate env_micrograph_cleaner_em`
   
-4) Install carbon_cleaner_em from repository  
-  ` conda install -c rsanchez1369 carbon-cleaner-em`
+4) Install micrograph_cleaner_em from repository  
+  ` conda install -c rsanchez1369 micrograph-cleaner-em`
 
 5) Download deep learning model  
   `cleanMics --download`
@@ -39,7 +40,7 @@ To get a complete description of usage execute
 
 
 1) install CUDA and cudnn in such a way that tensorflow (https://www.tensorflow.org/) can be executed. 
-   Carbon_cleaner is compatible with CUDA-8,CUDA-9 and CUDA-10.
+   micrograph_cleaner is compatible with CUDA-8,CUDA-9 and CUDA-10.
    Tensorflow version will be automatically selected according your CUDA version and installed later.
    CUDA is available at https://developer.nvidia.com/cuda-toolkit and cudnn is available at
    https://developer.nvidia.com/cudnn.  
@@ -48,17 +49,17 @@ To get a complete description of usage execute
 1.1) (optional) create virtual environment  
 ```
 pip install virtualenv
-virtualenv --system-site-packages -p python3 ./env_carbon_cleaner_em
-source ./env_carbon_cleaner_em/bin/activate
+virtualenv --system-site-packages -p python3 ./env_micrograph_cleaner_em
+source ./env_micrograph_cleaner_em/bin/activate
 ```
-2) Install carbon_cleaner_em  
+2) Install micrograph_cleaner_em  
 ```
-git clone https://github.com/rsanchezgarc/carbon_cleaner_em.git
-cd carbon_cleaner_em
+git clone https://github.com/rsanchezgarc/micrograph_cleaner_em.git
+cd micrograph_cleaner_em
 python setup.py install
 ```
   or  
-`pip install carbon_cleaner_em`
+`pip install micrograph_cleaner_em`
 
 2.1) If cudnn not installed yet, install install cudnnenv  
 `pip install cudnnenv`  
@@ -86,8 +87,8 @@ python setup.py install
 
 ## USAGE
 
-Carbon Cleaner employs an U-net-based deep learning model to segmentate micrographs into good regions and bad regions. Thus, it is mainly used as a post-processing step after particle picking in which coordinates selected in high contrast artefacts, such as carbon, will be ruled out. Additionally, it can be employed to generate binary masks so that particle pickers can be prevented from considering problematic regions.
-Thus, carbon_cleaner employs as a mandatory argument a(some) micrograph(s) fileneame(s) and the particle size in pixels. Additionally it can recive as input:
+MicrographCleaner employs an U-net-based deep learning model to segmentate micrographs into good regions and bad regions. Thus, it is mainly used as a post-processing step after particle picking in which coordinates selected in high contrast artefacts, such as carbon, will be ruled out. Additionally, it can be employed to generate binary masks so that particle pickers can be prevented from considering problematic regions.
+Thus, micrograph_cleaner employs as a mandatory argument a(some) micrograph(s) fileneame(s) and the particle size in pixels. Additionally it can recive as input:
 
 1) A directory where picked coordinates are located and another directory where scored/cleaned coordiantes will be saved. Coordinates will be saved in pos format or plain text (columns whith header colnames x and y) are located. 
 There must be one different coordinates file for each micrograph named as the micrograph and the output coordiantes will preserve the naming.  
@@ -108,21 +109,20 @@ E.g. --predictedMaskDir path/where/predictedMasksWillBeSaved/
 
 3) A downsampling factor (can be less than 1 if actually upsampling was performed) in case the coordinates where picked from
 micrographs at different scale.  
-E.g. -s 1.5 #will downsample coordiantes by a factor 1.5 and then it will apply the predicted mask that is as big as the imput micrographs  
+E.g. -s 1.5 will downsample coordinates by a factor 1.5 and then it will apply the predicted mask that is as big as the imput micrographs  
 
 4) Any combination of previous options.  
 
-Trained carbon cleaner model is available at http://campins.cnb.csic.es/carbon_cleaner/ and can be automatically download executing  
+Trained MicrographCleaner model is available at http://campins.cnb.csic.es/micrograph_cleaner/ and can be automatically download executing  
 `cleanMics --download`
 
-#TO CONTINUE
 
-Beware that if you installed carbon_cleaner using pip/source, then CUDA and cudnn libraries should be
+Beware that if you installed micrograph_cleaner using pip/source, then CUDA and cudnn libraries should be
 available prior execution, so if CUDA is not found, export its path prior execution  
 ```
 export LD_LIBRARY_PATH=/path/to/cuda/cuda-9.0/lib64:$LD_LIBRARY_PATH
 ```
-and then execute `cleanMics`  
+and then execute `cleanMics` program  
 
 #### Examples
 
@@ -141,7 +141,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
 ```
 
 ```
-cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/carbon_cleaner_em/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/carbon_cleaner_em/micsPreds --deepThr 0.5
+cleanMics  -c /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/008337_XmippParticlePickingAutomatic/extra/ -o ~/tmp/micrograph_cleaner_em/coordsCleaned/ -b 180 -s 1.0   --inputMicsPath  /home/rsanchez/ScipionUserData/projects/2dAverages_embeddings/Runs/002321_ProtImportMicrographs/extra/stack_0002_2x_SumCorr.mrc --predictedMaskDir /home/rsanchez/tmp/micrograph_cleaner_em/micsPreds --deepThr 0.5
 ```
 
 
