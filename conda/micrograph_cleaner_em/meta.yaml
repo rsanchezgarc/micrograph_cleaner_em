@@ -9,7 +9,7 @@ package:
 
 source:
   fn: '{{ name }}-{{ version }}.{{ file_ext }}'
-  url: https://pypi.io/packages/source/c/micrograph-cleaner-em/micrograph_cleaner_em-{{ version }}.{{ file_ext }}
+  url: https://pypi.io/packages/source/m/micrograph-cleaner-em/micrograph_cleaner_em-{{ version }}.{{ file_ext }}
   '{{ hash_type }}': '{{ hash_value }}'
 
 build:
