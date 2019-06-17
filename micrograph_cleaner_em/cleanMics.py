@@ -152,28 +152,35 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
                       help='GPU ids to employ. Comma separated list. E.g. "0,1". Default 0. use -1 for CPU-only computation')
 
   class _DownloadModel(argparse.Action):
-      def __init__(self, option_strings, dest=argparse.SUPPRESS, default=argparse.SUPPRESS, help=None):
+      def __init__(self, option_strings, dest, nargs=None, const=None, default=None, type=None,
+                   choices=None, required=False, help=None, metavar=None):
         super(_DownloadModel, self).__init__( option_strings=option_strings, dest=dest, default=default,
-                                              nargs=0,  help=help)
+                                              nargs=nargs,  const=const, required=required, help=help, metavar=metavar)
 
       def __call__(self, parser, namespace, values, option_string=None):
           import requests, gzip
           from io import BytesIO
+
           r = requests.get(DOWNLOAD_MODEL_URL)
           if r.status_code!=200:
             raise Exception("It was not possible to download model")
-          if not os.path.exists(DEFAULT_MODEL_PATH):
-            os.makedirs(DEFAULT_MODEL_PATH)
-          deepLearningModelPath= os.path.join(DEFAULT_MODEL_PATH, "defaultModel.keras")
-          print("DOWNLAODING MODEL at %s"%(DEFAULT_MODEL_PATH) )
+          if len(values)==0:
+            downloadPath=DEFAULT_MODEL_PATH
+          else:
+            downloadPath= os.path.abspath(os.path.expanduser(values[0]))
+          if not os.path.exists(downloadPath):
+            os.makedirs(downloadPath)
+          deepLearningModelPath= os.path.join(downloadPath, "defaultModel.keras")
+          print("DOWNLAODING MODEL at %s"%(downloadPath) )
           with open(deepLearningModelPath , 'wb') as f:
             content= gzip.GzipFile(fileobj=BytesIO(r.content) )
             f.write(content.read())
           print("DOWNLOADED!!")
           parser.exit()
 
-  parser.add_argument('--download', action=_DownloadModel,
-                      help='Download default micrograph_cleaner_em model. It will be saved at %s'%(DEFAULT_MODEL_PATH) )
+  parser.add_argument('--download', nargs='*', action=_DownloadModel,
+                      help='Download default micrograph_cleaner_em model. '+
+                           'It will be saved at %s if no path provided'%(DEFAULT_MODEL_PATH) )
 
   args = vars(parser.parse_args())
 #  print(args)
@@ -201,6 +208,8 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
 
   if "-1" in args["gpus"]:
     args["gpus"]=None
+  if "download" in args:
+    del args["download"]
   return args
 
 def commanLineFun():

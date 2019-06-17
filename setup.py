@@ -28,7 +28,6 @@ else:
 
 if sys.version_info[0] < 3:
   install_requires=[
-          'matplotlib==2.2.3',
           'scikit-image==0.14.2',
           'scipy==1.1',
           'joblib',
@@ -52,7 +51,7 @@ else:
       ]
                  
 setup(name='micrograph_cleaner_em',
-      version='0.1',
+      version='0.2',
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
       long_description_content_type="text/markdown",
