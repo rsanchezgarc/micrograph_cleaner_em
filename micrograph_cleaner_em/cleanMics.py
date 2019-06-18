@@ -19,7 +19,7 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
   coordsExtension= inputCoordsFnames[0].split(".")[-1] if inputCoordsFnames is not None else None
   matchingFnames= getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskDir, coordsExtension)
   assert len(matchingFnames)>0, "Error, there are no matching coordinate-micrograph files"
-  from .cleanOneBatchOfMic import cleanOneMic
+  from .cleanOneMic import cleanOneMic
 
   def prepareArgs(multipleNames, i):
     micFname, inputCoordsFname, outCoordsFname, predictedMaskFname= multipleNames
