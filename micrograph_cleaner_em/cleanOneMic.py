@@ -5,7 +5,7 @@ from threading import Lock
 LOCK = Lock()
 MASK_PREDICTOR_HANDLER=None
 
-def cleanOneMic(micFname: str, boxSize: int, deepLearningModel: str, inputCoordsFname=None, outCoordsFname=None,
+def cleanOneMic(micFname, boxSize, deepLearningModel, inputCoordsFname=None, outCoordsFname=None,
                 predictedMaskFname=None, downFactor=1, deepThr=0.2, sizeThr=0.8, gpus=[0]):
   '''
   cleanOneMic computes a 0. to 1. mask given one micrograph fname. Values close to 0 are assigned to clean areas whereas

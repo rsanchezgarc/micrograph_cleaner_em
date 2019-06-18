@@ -2,7 +2,7 @@ from __future__ import absolute_import, division, print_function
 import os
 import glob
 
-from micrograph_cleaner_em.utils import getFilesInPaths, getMatchingFiles, selectGpus
+from .utils import getFilesInPaths, getMatchingFiles, resolveDesiredGpus
 
 os.environ['OPENBLAS_NUM_THREADS']="4"
 os.environ['MKL_NUM_THREADS']="4"
@@ -13,7 +13,7 @@ from .cmdParser import parseArgs
 
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
          sizeThr, predictedMaskDir, gpus="0"):
-  gpus, n_jobs= selectGpus(gpus)
+  gpus, n_jobs= resolveDesiredGpus(gpus)
   micsFnames=getFilesInPaths(inputMicsPath, ["mrc", "tif"])
   inputCoordsFnames=getFilesInPaths(inputCoordsDir, ["txt", "tab", "pos"])
   coordsExtension= inputCoordsFnames[0].split(".")[-1] if inputCoordsFnames is not None else None

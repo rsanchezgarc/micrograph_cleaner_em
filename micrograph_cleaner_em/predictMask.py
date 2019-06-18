@@ -1,7 +1,8 @@
-import os, sys
+
 import numpy as np
-import keras
 from skimage.util import view_as_windows
+
+from micrograph_cleaner_em.utils import mask_CUDA_VISIBLE_DEVICES
 from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, resizeMic
 from math import ceil
 
@@ -11,19 +12,21 @@ BATCH_SIZE = 16
 
 
 class MaskPredictor(object):
-  '''
-  Class used to compute 0. to 1. masks given one numpy array os shape HxW that represents a micrograph
-  '''
-  def __init__(self, deepLearningModelFname: str, boxSize: int , gpus: list, strideFactor=2):
-    '''
 
-    :param deepLearningModelFname: a path where the deep learning model is saved
-    :param boxSize: estimated particle boxSize in pixels (int)
-    :param gpus: list of gpu ids (ints) or None. If None, all CUDA_VISIBLE_DEVICES gpus will be allocated although just one
-               will be employed for computation (this is default tensorflow behaviour)
-    :param strideFactor: Overlapping between windows. Micrographs are divided into patches and processes individually.
-                         The overlapping factor indicates how many times
+  '''
+  Class used to compute 0. to 1. masks given one numpy array of shape HxW that represents a micrograph
+  '''
+  def __init__(self, deepLearningModelFname, boxSize , gpus=[0], strideFactor=2):
     '''
+    :param deepLearningModelFname (str): a path where the deep learning model will be loaded
+    :param boxSize (int): estimated particle boxSize in pixels
+    :param gpus (list of gpu ids (ints) or None): If None, CPU only mode will be employed.
+    :param strideFactor (int): Overlapping between windows. Micrographs are divided into patches and each processed individually.
+                         The overlapping factor indicates how many times a given row/column is processed by the network. The
+                         bigger the better the predictions, but higher computational cost.
+    '''
+    mask_CUDA_VISIBLE_DEVICES(gpus)
+    import keras
     self.model = keras.models.load_model(deepLearningModelFname, {})
     self.boxSize = boxSize
     self.strideFactor= strideFactor
@@ -33,7 +36,10 @@ class MaskPredictor(object):
 
   def getDownFactor(self):
     '''
-    :return: the donwsampling factor that MaskPredictor uses internally when preprocessing the micrographs
+    MaskPredictor preprocess micrographs before Nnet computation. First step is donwsampling using a donwsampling factor
+    that depends on particle boxSize. This function computes the donwsampling factor
+
+    :return (float): the donwsampling factor that MaskPredictor uses internally when preprocessing the micrographs
     '''
     return getDownFactor(self.boxSize)
 
@@ -118,6 +124,19 @@ class MaskPredictor(object):
     jumpFound = jumpFound or found
     return micro_out, jumpFound
 
+  def close(self):
+    import keras
+    keras.backend.clear_session()
+
+  def __del__(self):
+    self.close()
+
+  def __exit__(self):
+    self.close()
+
+  def __enter__(self):
+    #TODO check if this works
+    return self
 
 def putNewVal(x, initPoint, value, axis, toTheRight=True):
   if axis == 0:

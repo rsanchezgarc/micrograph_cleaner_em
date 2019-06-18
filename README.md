@@ -143,3 +143,40 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
 ## API:
 
 #TODO
+
+The fundamental class employed within MicrographCleaner is MaskPredictor, a class designed to predict a contamination/carbon
+mask given a micrograph.
+
+
+######class micrograph_cleaner_em.MaskPredictor
+
+Usage: predicts masks of shape HxW given one numpy array of shape  that represents a micrograph.
+Mask values range from 0. to 1., being 0. associated to clean regions  and 1. to contamination.
+
+
+######builder
+```
+micrograph_cleaner_em.MaskPredictor(deepLearningModelFname, boxSize , gpus=[0], strideFactor=2)
+
+    :param deepLearningModelFname (str): a path where the deep learning model will be loaded
+    :param boxSize (int): estimated particle boxSize in pixels
+    :param gpus (list of gpu ids (ints) or None): If None, CPU only mode will be employed.
+    :param strideFactor (int): Overlapping between windows. Micrographs are divided into patches and each processed individually.
+                         The overlapping factor indicates how many times a given row/column is processed by the network. The 
+                         bigger the better the predictions, but higher computational cost.
+```
+
+######methods
+
+
+
+
+```
+getDownFactor(self):
+    '''
+    MaskPredictor preprocess micrographs before Nnet computation. First step is donwsampling using a donwsampling factor
+    that depends on particle boxSize. This function computes the donwsampling factor
+    
+    :return (float): the donwsampling factor that MaskPredictor uses internally when preprocessing the micrographs
+    '''
+```

@@ -1,10 +1,10 @@
-import sys, os
+import os
 import glob
 
 def getFilesInPaths(pathsList, extensions):
-  if pathsList is None:
-    return None
-  if isinstance(pathsList, str) or 1 == len(pathsList):
+  if pathsList is None or len(pathsList)<1:
+    fnames=[]
+  elif isinstance(pathsList, str) or 1 == len(pathsList):
     if not isinstance(pathsList, str) and len(pathsList)==1:
       pathsList= pathsList[0]
     if os.path.isdir(pathsList):
@@ -14,7 +14,10 @@ def getFilesInPaths(pathsList, extensions):
     errorPath= pathsList
   else:
     fnames= pathsList
-    errorPath= os.path.split(pathsList[0])[0]
+    try:
+      errorPath= os.path.split(pathsList[0])[0]
+    except IndexError:
+      raise Exception("Error, pathList contains erroneous paths "+str(pathsList))
   extensions= set(extensions)
   fnames= [ fname for fname in fnames if fname.split(".")[-1] in extensions ]
   assert len(fnames)>0, "Error, there are no < %s > files in path %s"%(" - ".join(extensions), errorPath)
@@ -46,6 +49,7 @@ def getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskD
 
 def selectGpus(gpusStr):
   print("updating environ to select gpus %s" % (gpusStr))
+
   if gpusStr.startswith("all"):
     if 'CUDA_VISIBLE_DEVICES' in os.environ:
       gpus= [ elem.strip() for elem in os.environ['CUDA_VISIBLE_DEVICES'].split(",") ]
@@ -57,6 +61,31 @@ def selectGpus(gpusStr):
       os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
       return [None], 1
   else:
-    os.environ['CUDA_VISIBLE_DEVICES'] = str(gpusStr).replace(" ", "")
+    mask_CUDA_VISIBLE_DEVICES(gpusStr)
     gpus= [ int(num.strip()) for num in gpusStr.split(",") ]
     return gpus, len(gpus)
+
+
+def resolveDesiredGpus(gpusStr):
+
+  if gpusStr == '' or gpusStr is None or gpusStr=='-1':
+      return [None], 1
+  elif gpusStr.startswith("all"):
+    if 'CUDA_VISIBLE_DEVICES' in os.environ:
+      gpus= [ elem.strip() for elem in os.environ['CUDA_VISIBLE_DEVICES'].split(",") ]
+      return gpus, len(gpus)
+    else:
+      return [None], 1
+  else:
+    gpus= [ int(num.strip()) for num in gpusStr.split(",") ]
+    return gpus, len(gpus)
+
+def mask_CUDA_VISIBLE_DEVICES(gpuList):
+  print("updating environ to select gpus %s" % (gpuList))
+  if gpuList is None:
+    gpusStr = ",".join([ str(elem.strip()) for elem in gpuList])
+  elif isinstance(gpuList, list):
+    gpusStr="-1"
+  else:
+    gpusStr= gpuList
+  os.environ['CUDA_VISIBLE_DEVICES'] = str(gpusStr).replace(" ", "")
