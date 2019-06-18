@@ -3,7 +3,7 @@ import numpy as np
 from skimage.util import pad
 from skimage.transform import resize
 
-from .config import MODEL_IMG_SIZE, DESIRED_PARTICLE_SIZE
+from .config import DESIRED_PARTICLE_SIZE
 
 try:
   from scipy.stats import iqr
@@ -14,9 +14,7 @@ except ImportError:
     return q3_x - q1_x
 
 def normalizeImg(img, squeezeToRange=False, sigmoidInsteadTanh=True, iqrRange=(25,75)):
-  '''
-  Proposed better normalization. Testing better normalization
-  '''
+
   iqr_val= iqr(img, rng= iqrRange )
   if iqr_val==0:
       print("warning, bad iqr")
@@ -50,8 +48,15 @@ def preprocessMic(mic, particleSize):
 
   mic= normalizeImg(mic, squeezeToRange=False, iqrRange=(25,75))
   downFactor= getDownFactor(particleSize)
-  mic= resize(mic, tuple([int(s/downFactor) for s in mic.shape]), preserve_range=True, 
-                  anti_aliasing=True, mode='reflect')
+  mic= downsampleMic(mic, downFactor)
   mic= normalizeImg(mic, squeezeToRange=True, sigmoidInsteadTanh=True, iqrRange=(10, 90))
-  return mic, downFactor
+  return mic
   
+
+def downsampleMic(mic, downFactor):
+  mic= resizeMic(mic, tuple([int(s/downFactor) for s in mic.shape]) )
+  return mic
+
+def resizeMic(mic, newShape):
+  return resize(mic, newShape, preserve_range=True,
+                  anti_aliasing=True, mode='reflect')
