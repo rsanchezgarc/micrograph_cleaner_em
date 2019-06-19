@@ -1,18 +1,17 @@
 from __future__ import absolute_import, division, print_function
 import os
-import glob
 
-from .utils import getFilesInPaths, getMatchingFiles, resolveDesiredGpus
 
 os.environ['OPENBLAS_NUM_THREADS']="4"
 os.environ['MKL_NUM_THREADS']="4"
 os.environ['OMP_NUM_THREADS']="4"
 from joblib import Parallel, delayed
 
-from .cmdParser import parseArgs
 
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
          sizeThr, predictedMaskDir, gpus="0"):
+  from .utils import getFilesInPaths, getMatchingFiles, resolveDesiredGpus
+
   gpus, n_jobs= resolveDesiredGpus(gpus)
   micsFnames=getFilesInPaths(inputMicsPath, ["mrc", "tif"])
   inputCoordsFnames=getFilesInPaths(inputCoordsDir, ["txt", "tab", "pos", "star"])
@@ -46,6 +45,7 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
 
 
 def commanLineFun():
+  from .cmdParser import parseArgs
   main( ** parseArgs() )
 
 if __name__=="__main__":

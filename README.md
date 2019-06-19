@@ -183,6 +183,9 @@ getDownFactor(self):
     that depends on particle boxSize. This function computes the donwsampling factor
     
     :return (float): the donwsampling factor that MaskPredictor uses internally when preprocessing the micrographs
+    
+close(self):
+    Used to release memory
 ```
 
 #####example

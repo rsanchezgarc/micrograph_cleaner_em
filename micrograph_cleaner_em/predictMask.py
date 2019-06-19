@@ -2,7 +2,7 @@
 import numpy as np
 from skimage.util import view_as_windows
 
-from micrograph_cleaner_em.utils import mask_CUDA_VISIBLE_DEVICES
+from .utils import mask_CUDA_VISIBLE_DEVICES
 from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, resizeMic
 from math import ceil
 

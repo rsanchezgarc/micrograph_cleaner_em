@@ -1,6 +1,6 @@
 from unittest import TestCase
 from .testConfig import TEST_DATA_ROOT_DIR
-import sys,os
+import os
 
 class TestMaskPredictor(TestCase):
 
