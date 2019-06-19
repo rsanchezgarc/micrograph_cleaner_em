@@ -142,7 +142,6 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
 
 ## API:
 
-#TODO
 
 The fundamental class employed within MicrographCleaner is MaskPredictor, a class designed to predict a contamination/carbon
 mask given a micrograph.
@@ -154,7 +153,7 @@ Usage: predicts masks of shape HxW given one numpy array of shape  that represen
 Mask values range from 0. to 1., being 0. associated to clean regions  and 1. to contamination.
 
 
-######builder
+#####builder
 ```
 micrograph_cleaner_em.MaskPredictor(deepLearningModelFname, boxSize , gpus=[0], strideFactor=2)
 
@@ -166,17 +165,35 @@ micrograph_cleaner_em.MaskPredictor(deepLearningModelFname, boxSize , gpus=[0], 
                          bigger the better the predictions, but higher computational cost.
 ```
 
-######methods
-
-
+#####methods
 
 
 ```
+predictMask(self, inputMic):
+    Obtains a contamination mask for a given inputMic
+
+    :param inputMic (np.array shape HxW): the micrograph to clean
+    :return: mask (np.array shape HxW): a mask that ranges from 0. to 1. ->
+                   0. meaning clean area and 1. contaminated area.
+```
+
+```
 getDownFactor(self):
-    '''
     MaskPredictor preprocess micrographs before Nnet computation. First step is donwsampling using a donwsampling factor
     that depends on particle boxSize. This function computes the donwsampling factor
     
     :return (float): the donwsampling factor that MaskPredictor uses internally when preprocessing the micrographs
-    '''
+```
+
+#####example
+The following lines show how to compute the mask for a given micrograph
+
+```
+from micrograph_cleaner_em import MaskPredictor
+
+deepLearningModelFname="/path/to/deepLearningModel.keras"
+boxSize=128
+mic= loadMic("do whatever you need") # mic is a np.array 
+with MaskPredictor(deepLearningModelFname, boxSize , gpus=[0]) as mp:
+    mask= mp.predict(mic)
 ```

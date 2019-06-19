@@ -32,9 +32,13 @@ def getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskD
     micName= getMicName(fname)
 #    print(micName)
     if inputCoordsDir is not None:
-      inCoordsFname= os.path.join(inputCoordsDir, micName+"."+coordsExtension)
+      coordsFname= micName+"."+coordsExtension
+      inCoordsFname= os.path.join(inputCoordsDir, coordsFname)
+      if not os.path.isfile((inCoordsFname)) and coordsExtension.endswith("star"):
+        coordsFname = micName + "_autopick." + coordsExtension
+        inCoordsFname = os.path.join(inputCoordsDir, coordsFname)
       if os.path.isfile(inCoordsFname):
-        outCoordsFname= os.path.join(outputCoordsDir, micName+"."+coordsExtension)
+        outCoordsFname= os.path.join(outputCoordsDir, coordsFname)
         if predictedMaskDir is not None:
           predictedMaskFname= os.path.join(predictedMaskDir, micName+".mrc")
         else:

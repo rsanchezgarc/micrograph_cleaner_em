@@ -58,10 +58,10 @@ class MaskPredictor(object):
     '''
     Obtains a contamination mask for a given inputMic
 
-    :param inputMic: np.array of shape HxW that represents a micrograph
-    :return: mask np.array of shape HxW that ranges from 0. to 1. 0. meaning clean area and 1. contaminated area.
+    :param inputMic (np.array shape HxW): the micrograph to clean
+    :return: mask (np.array shape HxW): a mask that ranges from 0. to 1. ->
+                   0. meaning clean area and 1. contaminated area.
     '''
-
     originalShape = inputMic.shape
     mic = preprocessMic(inputMic, self.boxSize)
 
@@ -125,17 +125,14 @@ class MaskPredictor(object):
     return micro_out, jumpFound
 
   def close(self):
+    del self.model
     import keras
     keras.backend.clear_session()
 
-  def __del__(self):
-    self.close()
-
-  def __exit__(self):
+  def __exit__(self, exc_type, exc_value, tb):
     self.close()
 
   def __enter__(self):
-    #TODO check if this works
     return self
 
 def putNewVal(x, initPoint, value, axis, toTheRight=True):
