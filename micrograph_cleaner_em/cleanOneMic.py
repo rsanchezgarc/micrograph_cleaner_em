@@ -18,7 +18,7 @@ def cleanOneMic(micFname, boxSize, deepLearningModel, inputCoordsFname=None, out
                          inputCoordsFname provided
   :param predictedMaskFname: fname to store the predicted mask. If None, no predicted mask is saved to disk
   :param deepLearningModel: a path where the deep learning model is saved
-  :param boxSize: estimated particle boxSize in pixels (int)
+  :param boxSize: estimated particle boxSize in pixels (int) of the input micrograph
   :param downFactor: Downsampling factor applied to the coordinates. Set it !=1 if the coordinates where picked
                      from a different micrograph (down/up sampled) than micFname.
   :param deepThr: Threshold to rule out coordinates. Particles are ruled out if score> deepThr.
@@ -36,13 +36,13 @@ def cleanOneMic(micFname, boxSize, deepLearningModel, inputCoordsFname=None, out
   from .predictMask import MaskPredictor
   from .filterCoords import filterCoords
 
-  boxSizeInDownMic= boxSize/downFactor
-  
+
   global MASK_PREDICTOR_HANDLER
   with LOCK:
     if MASK_PREDICTOR_HANDLER is None:
-      MASK_PREDICTOR_HANDLER= MaskPredictor(deepLearningModel, boxSizeInDownMic, gpus)
-      
+      MASK_PREDICTOR_HANDLER= MaskPredictor(deepLearningModel, boxSize, gpus)
+
+
   maskPredictor= MASK_PREDICTOR_HANDLER
 
   if predictedMaskFname is not None and os.path.isfile(predictedMaskFname):

@@ -62,8 +62,12 @@ class MaskPredictor(object):
     :return: mask (np.array shape HxW): a mask that ranges from 0. to 1. ->
                    0. meaning clean area and 1. contaminated area.
     '''
+
     originalShape = inputMic.shape
     mic = preprocessMic(inputMic, self.boxSize)
+
+    # print("Donwsampled from %s --> %s"%( originalShape, mic.shape ) )
+
 
     mask_list = []
     fixedJump_list = []

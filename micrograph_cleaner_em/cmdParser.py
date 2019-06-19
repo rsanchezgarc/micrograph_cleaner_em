@@ -65,7 +65,8 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
                       help='particles box size in pixels')
 
   parser.add_argument('-s', '--downFactor', type=float, nargs='?', required=False, default=1,
-                      help='(optional) micrograph downsampling factor to scale coordinates, Default no scaling')
+                      help='(optional) micrograph downsampling factor to scale coordinates, Default no scaling. Use it '+
+                            'only if the micrographs have been down/up sampled with respect the picked coordinates')
 
   parser.add_argument('--deepThr', type=getRestricetedFloat(), nargs='?', default=None, required=False,
                       help='(optional) deep learning threshold to rule out coordinates (coord_score<=deepThr-->accepted). ' +
