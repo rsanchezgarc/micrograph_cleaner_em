@@ -30,7 +30,7 @@ def getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskD
   matchingFnames={}
   for fname in micsFnames:
     micName= getMicName(fname)
-    print(micName)
+#    print(micName)
     if inputCoordsDir is not None:
       inCoordsFname= os.path.join(inputCoordsDir, micName+"."+coordsExtension)
       if os.path.isfile(inCoordsFname):

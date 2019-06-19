@@ -153,6 +153,7 @@ loop_
   else:
     s = relion_header
     pattern = "%13s"
+    coordsDf= coordsDf.drop("goodRegionScore", axis=1)
   template = ""
   colNames = list(coordsDf.columns)
   for colName in colNames:

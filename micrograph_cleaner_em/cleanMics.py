@@ -15,8 +15,11 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
          sizeThr, predictedMaskDir, gpus="0"):
   gpus, n_jobs= resolveDesiredGpus(gpus)
   micsFnames=getFilesInPaths(inputMicsPath, ["mrc", "tif"])
-  inputCoordsFnames=getFilesInPaths(inputCoordsDir, ["txt", "tab", "pos"])
+  inputCoordsFnames=getFilesInPaths(inputCoordsDir, ["txt", "tab", "pos", "star"])
   coordsExtension= inputCoordsFnames[0].split(".")[-1] if inputCoordsFnames is not None else None
+  if coordsExtension=="star" and deepThr is None:
+    raise Exception("When using relion star file coordinates as input, a deepThr must be provided, as relion does "+
+                    "not allow for unknow metadata labels")
   matchingFnames= getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskDir, coordsExtension)
   assert len(matchingFnames)>0, "Error, there are no matching coordinate-micrograph files"
   from .cleanOneMic import cleanOneMic
