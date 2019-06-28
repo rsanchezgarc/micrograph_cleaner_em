@@ -1,5 +1,7 @@
 import os
 import glob
+from subprocess import check_output, CalledProcessError
+
 
 def getFilesInPaths(pathsList, extensions, abortIfEmpty=True):
   if pathsList is None or len(pathsList)<1:
@@ -73,15 +75,19 @@ def selectGpus(gpusStr):
 
 
 def resolveDesiredGpus(gpusStr):
-
   if gpusStr == '' or gpusStr is None or gpusStr=='-1':
       return [None], 1
   elif gpusStr.startswith("all"):
-    if 'CUDA_VISIBLE_DEVICES' in os.environ:
+    if 'CUDA_VISIBLE_DEVICES' in os.environ: #this is for slurm
       gpus= [ elem.strip() for elem in os.environ['CUDA_VISIBLE_DEVICES'].split(",") ]
       return gpus, len(gpus)
     else:
-      return [None], 1
+      try:
+        nGpus= int(check_output("nvidia-smi -L | wc -l", shell=True))
+        gpus= list(range(nGpus))
+        return gpus, nGpus
+      except (CalledProcessError, FileNotFoundError, OSError):
+        return [None], 1
   else:
     gpus= [ int(num.strip()) for num in gpusStr.split(",") ]
     return gpus, len(gpus)
@@ -89,9 +95,9 @@ def resolveDesiredGpus(gpusStr):
 def mask_CUDA_VISIBLE_DEVICES(gpuList):
   print("updating environ to select gpus %s" % (gpuList))
   if gpuList is None:
-    gpusStr = ",".join([ str(elem.strip()) for elem in gpuList])
-  elif isinstance(gpuList, list):
     gpusStr="-1"
+  elif isinstance(gpuList, list):
+    gpusStr = ",".join([ str(elem).strip() for elem in gpuList])
   else:
     gpusStr= gpuList
   os.environ['CUDA_VISIBLE_DEVICES'] = str(gpusStr).replace(" ", "")

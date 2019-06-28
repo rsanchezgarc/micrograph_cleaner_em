@@ -1,7 +1,6 @@
 import sys, os
 from setuptools import setup
 from subprocess import Popen, PIPE
-from distutils.command.install import install as _install
 
 def readme():
   readmePath= os.path.abspath(os.path.join(__file__, "..", "README.md") )
@@ -51,7 +50,7 @@ else:
       ]
                  
 setup(name='micrograph_cleaner_em',
-      version='0.2',
+      version='0.22',
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
       long_description_content_type="text/markdown",
