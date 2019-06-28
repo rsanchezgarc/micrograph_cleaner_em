@@ -14,8 +14,8 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
 
   gpus, n_jobs= resolveDesiredGpus(gpus)
   micsFnames=getFilesInPaths(inputMicsPath, ["mrc", "tif"])
-  inputCoordsFnames=getFilesInPaths(inputCoordsDir, ["txt", "tab", "pos", "star"])
-  coordsExtension= inputCoordsFnames[0].split(".")[-1] if inputCoordsFnames is not None else None
+  inputCoordsFnames=getFilesInPaths(inputCoordsDir, ["txt", "tab", "pos", "star"], abortIfEmpty=False)
+  coordsExtension= inputCoordsFnames[0].split(".")[-1] if len(inputCoordsFnames)>0 else None
   if coordsExtension=="star" and deepThr is None:
     raise Exception("When using relion star file coordinates as input, a deepThr must be provided, as relion does "+
                     "not allow for unknow metadata labels")

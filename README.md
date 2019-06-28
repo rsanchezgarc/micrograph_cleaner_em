@@ -148,13 +148,13 @@ The fundamental class employed within MicrographCleaner is MaskPredictor, a clas
 mask given a micrograph.
 
 
-######class micrograph_cleaner_em.MaskPredictor
+##### class micrograph_cleaner_em.MaskPredictor
 
 Usage: predicts masks of shape HxW given one numpy array of shape  that represents a micrograph.
 Mask values range from 0. to 1., being 0. associated to clean regions  and 1. to contamination.
 
 
-#####builder
+##### builder
 ```
 micrograph_cleaner_em.MaskPredictor(deepLearningModelFname, boxSize , gpus=[0], strideFactor=2)
 
@@ -166,7 +166,7 @@ micrograph_cleaner_em.MaskPredictor(deepLearningModelFname, boxSize , gpus=[0], 
                          bigger the better the predictions, but higher computational cost.
 ```
 
-#####methods
+##### methods
 
 
 ```
@@ -189,7 +189,7 @@ close(self):
     Used to release memory
 ```
 
-#####example
+##### example
 The following lines show how to compute the mask for a given micrograph
 
 ```
