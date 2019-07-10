@@ -50,7 +50,7 @@ else:
       ]
                  
 setup(name='micrograph_cleaner_em',
-      version='0.22',
+      version='0.23',
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
       long_description_content_type="text/markdown",

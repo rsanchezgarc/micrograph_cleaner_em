@@ -150,7 +150,7 @@ mask given a micrograph.
 
 ##### class micrograph_cleaner_em.MaskPredictor
 
-Usage: predicts masks of shape HxW given one numpy array of shape  that represents a micrograph.
+Usage: predicts masks of shape HxW given one numpy array of shape HxW that represents a micrograph.
 Mask values range from 0. to 1., being 0. associated to clean regions  and 1. to contamination.
 
 
