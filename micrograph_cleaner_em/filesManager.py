@@ -34,7 +34,7 @@ except ImportError:
     print(fname)
     if os.path.basename(fname).split(".")[-1].startswith("mrc"):
       with mrcfile.open(fname, permissive=True) as mrc:
-        micData = np.squeeze(mrc.data)
+        micData = np.squeeze(mrc.data.copy())
     else:
       micData = np.squeeze(imread(fname))
     return micData

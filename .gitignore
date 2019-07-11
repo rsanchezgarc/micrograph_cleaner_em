@@ -10,3 +10,5 @@
 /build/
 *.keras
 .idea
+
+micrograph_cleaner_em/tests/data/rawPreds/

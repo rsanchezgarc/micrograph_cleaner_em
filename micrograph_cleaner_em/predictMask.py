@@ -1,6 +1,5 @@
 
 import numpy as np
-from scipy.ndimage import rotate
 from skimage.util import view_as_windows
 
 from .utils import mask_CUDA_VISIBLE_DEVICES
@@ -69,7 +68,6 @@ class MaskPredictor(object):
 
     # #print("Donwsampled from %s --> %s"%( originalShape, mic.shape ) )
 
-
     mask_list = []
     fixedJump_list = []
 
@@ -78,7 +76,6 @@ class MaskPredictor(object):
     N_ROTS = 4
     for rot in range(N_ROTS):
       img = np.rot90(mic, rot)
-      # img = rotate(mic, rot*15, reshape=False)
       paddedMic, paddingTuples = padToRegularSize(img, MODEL_IMG_SIZE, self.strideFactor, fillWith0=True)
       windows, originalWinShape = self.extractPatches(paddedMic)
       windows_list.append(windows)
@@ -92,7 +89,6 @@ class MaskPredictor(object):
       micShape, paddingTuples = padding_list[rot]
       mask, jumpFound = self.return_as_oneMic(micro_pred, micShape, paddingTuples, MODEL_IMG_SIZE)
       mask_list.append(np.rot90(mask, 4 - rot))
-      # mask_list.append( rotate(mask, 360-rot*15, reshape=False) )
 
       fixedJump_list.append(jumpFound)
 
@@ -130,7 +126,6 @@ class MaskPredictor(object):
     jumpFound = jumpFound or found
     micro_out, found = fixJumpInBorders(micro_out, axis=1, stride=stride)
     jumpFound = jumpFound or found
-    # input("done one input")
     return micro_out, jumpFound
 
   def close(self):
@@ -159,34 +154,26 @@ def putNewVal(x, initPoint, value, axis, toTheRight=True):
 
 
 def fixJumpInBorders(micro_out, axis, stride, strapWidthFactor=0.05, differenceThr=0.4):
-  # from matplotlib import pyplot as plt;
-  # fig = plt.figure();
-  # fig.add_subplot(111);
-  # plt.imshow(micro_out, cmap="gray");
-  # plt.show()
 
-  #print("axis:", axis)
-  strapWidth= int(strapWidthFactor*stride)
+  strapWidth= int(ceil(strapWidthFactor*stride))
   nCheckingPoints=  int(ceil(micro_out.shape[axis] / float(stride)))
   jumpFound=False
   for i in range(1,nCheckingPoints):
     currentRow = np.take(micro_out, [stride * i -1-j for j in range(strapWidth)], axis=axis).mean(axis=axis)
     nextRow = np.take(micro_out, [stride * i+ j for j in range(strapWidth)], axis=axis).mean(axis=axis)
     differences= nextRow - currentRow
-    differences= differences[np.abs(differences)>1e-2]
-    mean_dif_frac = np.mean(differences < -differenceThr ) if differences.shape[0]>0 else 0
-    #print(i, np.mean((nextRow - currentRow)), mean_dif_frac)
-    if mean_dif_frac >= 0.5:
+    differencesPadded= np.pad(differences, 2, mode="reflect")
+    differences= np.convolve(differencesPadded, np.ones(3)/3., mode='same')[2:-2]
+    mean_dif_frac = np.mean((differences < -differenceThr).astype(np.float32) ) if differences.shape[0]>0 else 0
+
+    if mean_dif_frac >= float(stride-1)/nextRow.shape[0]:
       jumpFound=True
       currentBlock= np.take(micro_out, range(stride * (i-1), stride * i) , axis=axis)
-      #print(i,"will be refined")
       for j in range(i, nCheckingPoints):
         nextBlock = np.take(micro_out, range(stride * j, min(micro_out.shape[axis], stride * (j + 1) - 1)), axis=axis)
         profileNextBlock= nextBlock.std(axis=(axis+1)%2)
         blocksDifference= nextBlock.mean(axis=axis) - currentBlock.mean(axis=axis)
         blocksDifference = blocksDifference[np.abs(blocksDifference) > 1e-2]
-        #print( nextBlock.mean(), currentBlock.mean() )
-        #print(j, "refining", np.median(blocksDifference) )
 
         if np.median(blocksDifference)>0 or \
           (np.sum(profileNextBlock[:profileNextBlock.shape[0]//4])-np.sum(profileNextBlock[profileNextBlock.shape[0]//4:]))>0:
@@ -194,8 +181,7 @@ def fixJumpInBorders(micro_out, axis, stride, strapWidthFactor=0.05, differenceT
           break
         currentBlock= nextBlock
     if jumpFound:
-      #print("Padding effect found in axis %d. Correcting" % (axis))
-      micro_out_ori= micro_out.copy()
+      # print("Padding effect found in axis %d. Correcting" % (axis))
       micro_out = putNewVal(micro_out, i * stride, np.take(micro_out, [i * stride - 1], axis=axis), axis)
       submicro= micro_out[i * stride:, ... ] if axis==0 else  micro_out[..., i * stride:]
       submircoRot_fixed, wasFixed= fixJumpInBorders(np.rot90(submicro, 1), axis, stride, differenceThr= differenceThr*.5)
@@ -205,8 +191,5 @@ def fixJumpInBorders(micro_out, axis, stride, strapWidthFactor=0.05, differenceT
           micro_out[i * stride:, ...]= submicro
         else:
           micro_out[..., i * stride:]= submicro
-
-      # from matplotlib import pyplot as plt; fig= plt.figure(); fig.add_subplot(311); plt.imshow(micro_out_ori, cmap="gray"); fig.add_subplot(312); plt.imshow(micro_out, cmap="gray"); fig.add_subplot(313); plt.imshow(submircoRot_fixed, cmap="gray"); plt.show()
-
       break
   return micro_out, jumpFound
