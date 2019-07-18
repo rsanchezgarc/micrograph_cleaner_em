@@ -1,6 +1,7 @@
 from unittest import TestCase
-from .testConfig import TEST_DATA_ROOT_DIR
 import os
+
+from micrograph_cleaner_em.tests.testConfig import TEST_DATA_ROOT_DIR
 
 class TestGetMatchingFiles(TestCase):
   def test_relion_match(self):
