@@ -156,11 +156,18 @@ def putNewVal(x, initPoint, value, axis, toTheRight=True):
 def fixJumpInBorders(micro_out, axis, stride, strapWidthFactor=0.05, differenceThr=0.4):
 
   strapWidth= int(ceil(strapWidthFactor*stride))
+  def filterOutOfBounds(idxList):
+    idxs=[]
+    for idx in idxList:
+      if idx>=0 and idx<micro_out.shape[axis]:
+        idxs.append( idx)
+    return idxs
+
   nCheckingPoints=  int(ceil(micro_out.shape[axis] / float(stride)))
   jumpFound=False
   for i in range(1,nCheckingPoints):
-    currentRow = np.take(micro_out, [stride * i -1-j for j in range(strapWidth)], axis=axis).mean(axis=axis)
-    nextRow = np.take(micro_out, [stride * i+ j for j in range(strapWidth)], axis=axis).mean(axis=axis)
+    currentRow = np.take(micro_out, filterOutOfBounds([stride * i -1-j for j in range(strapWidth)]), axis=axis).mean(axis=axis)
+    nextRow = np.take(micro_out, filterOutOfBounds([stride * i+ j for j in range(strapWidth)]), axis=axis).mean(axis=axis)
     differences= nextRow - currentRow
     differencesPadded= np.pad(differences, 2, mode="reflect")
     differences= np.convolve(differencesPadded, np.ones(3)/3., mode='same')[2:-2]
