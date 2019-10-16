@@ -8,7 +8,7 @@ class TestMaskPredictor(TestCase):
 
   def test_predictMask(self):
     from micrograph_cleaner_em import MaskPredictor
-    from micrograph_cleaner_em.cmdParser import DEFAULT_MODEL_PATH
+    from micrograph_cleaner_em.config import DEFAULT_MODEL_PATH
     import mrcfile
     import numpy as np
 

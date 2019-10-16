@@ -1,11 +1,12 @@
 import os
 from threading import Lock
 
+from micrograph_cleaner_em.config import DEFAULT_MODEL_PATH
 
 LOCK = Lock()
 MASK_PREDICTOR_HANDLER=None
 
-def cleanOneMic(micFname, boxSize, deepLearningModel, inputCoordsFname=None, outCoordsFname=None,
+def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCoordsFname=None, outCoordsFname=None,
                 predictedMaskFname=None, downFactor=1, deepThr=0.2, sizeThr=0.8, gpus=[0]):
   '''
   cleanOneMic computes a 0. to 1. mask given one micrograph fname. Values close to 0 are assigned to clean areas whereas

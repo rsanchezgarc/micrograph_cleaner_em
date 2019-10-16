@@ -1,8 +1,7 @@
 from __future__ import absolute_import, division, print_function
 import sys, os
 
-DOWNLOAD_MODEL_URL = 'http://campins.cnb.csic.es/micrograph_cleaner/defaultModel.keras.gz'
-DEFAULT_MODEL_PATH = os.path.expanduser("~/.local/share/micrograph_cleaner_em/models/")
+from micrograph_cleaner_em.config import DOWNLOAD_MODEL_URL, DEFAULT_MODEL_PATH
 
 
 def parseArgs():
