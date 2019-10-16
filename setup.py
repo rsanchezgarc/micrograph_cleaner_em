@@ -2,6 +2,7 @@ import sys, os
 from setuptools import setup
 from subprocess import Popen, PIPE
 
+VERSION="0.27"
 def readme():
   readmePath= os.path.abspath(os.path.join(__file__, "..", "README.md") )
   with open(readmePath) as f:
@@ -50,7 +51,7 @@ else:
       ]
                  
 setup(name='micrograph_cleaner_em',
-      version='0.26',
+      version=VERSION,
       description='Deep learning for cryo-EM micrograph cleaning',
       long_description=readme(),
       long_description_content_type="text/markdown",
