@@ -53,11 +53,12 @@ class MaskPredictor(object):
       arrayOfPatches[i][arrayOfPatches[i] <= 0.5] = 0
     return arrayOfPatches
 
-  def predictMask(self, inputMic):
+  def predictMask(self, inputMic, outputPrecision=np.float32):
     '''
     Obtains a contamination mask for a given inputMic
 
     :param inputMic (np.array shape HxW): the micrograph to clean
+    :param outputPrecision: the type of the floating point number desired as input. Default float32
     :return: mask (np.array shape HxW): a mask that ranges from 0. to 1. ->
                    0. meaning clean area and 1. contaminated area.
     '''
@@ -96,6 +97,8 @@ class MaskPredictor(object):
     mask = sum(mask_list) / len(mask_list)
     mask = resizeMic(mask, originalShape)
 
+    if mask.dtype!= outputPrecision:
+      mask= mask.astype( outputPrecision )
     # from matplotlib import pyplot as plt; fig= plt.figure(); fig.add_subplot(311); plt.imshow(inputMic, cmap="gray"); fig.add_subplot(312); plt.imshow(mic, cmap="gray"); fig.add_subplot(313); plt.imshow(mask); plt.show()
     return mask
 
