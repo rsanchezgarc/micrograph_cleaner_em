@@ -69,7 +69,7 @@ python setup.py install
 "v7.4.1-cuda10" for CUDA-10.  
  
 3) Download deep learning model  
-  `cleanMics --download`
+`cleanMics --download`
   
 4) Ready!  
 
@@ -93,7 +93,7 @@ Thus, micrograph_cleaner employs as a mandatory argument a(some) micrograph(s) f
 1) A directory where picked coordinates are located and another directory where scored/cleaned coordiantes will be saved. Coordinates will be saved in pos format or plain text (columns whith header colnames x and y) are located. 
 There must be one different coordinates file for each micrograph named as the micrograph and the output coordiantes will preserve the naming.  
 E.g. -c path/to/inputCoordsDirectory/ -o /path/to/outputCoordsDirectory/  
-Allowed formats are xmipp pos and raw text tab separated with at least two columns named as xcoor, ycoor in the header.
+Allowed formats are xmipp pos, relion star and raw text tab separated with at least two columns named as xcoor, ycoor in the header.
 Raw text file example:
 ```
 micFname1.tab:
@@ -108,7 +108,7 @@ xcoor ycoor otherInfo1 otherInfo2
 E.g. --predictedMaskDir path/where/predictedMasksWillBeSaved/  
 
 3) A downsampling factor (can be less than 1 if actually upsampling was performed) in case the coordinates where picked from
-micrographs at different scale.  
+micrographs at different scale.
 E.g. -s 2 will downsample coordinates by a factor 2 and then it will apply the predicted mask that is as big as the input micrographs. This
 case corresponds to an example in which we use for particle picking raw micrographs but we are using MicrographCleaner with downsampled mics  
 
@@ -156,10 +156,10 @@ Mask values range from 0. to 1., being 0. associated to clean regions  and 1. to
 
 ##### builder
 ```
-micrograph_cleaner_em.MaskPredictor(deepLearningModelFname, boxSize , gpus=[0], strideFactor=2)
-
-    :param deepLearningModelFname (str): a path where the deep learning model will be loaded
+micrograph_cleaner_em.MaskPredictor(boxSize, deepLearningModelFname=DEFAULT_PATH , gpus=[0], strideFactor=2)
+    
     :param boxSize (int): estimated particle boxSize in pixels
+    :param deepLearningModelFname (str): a path where the deep learning model will be loaded. DEFAULT_PATH="~/.local/share/micrograph_cleaner_em/models/defaultModel.keras"
     :param gpus (list of gpu ids (ints) or None): If None, CPU only mode will be employed.
     :param strideFactor (int): Overlapping between windows. Micrographs are divided into patches and each processed individually.
                          The overlapping factor indicates how many times a given row/column is processed by the network. The 
@@ -174,6 +174,7 @@ predictMask(self, inputMic):
     Obtains a contamination mask for a given inputMic
 
     :param inputMic (np.array shape HxW): the micrograph to clean
+    :param outputPrecision: the type of the floating point number desired as input. Default float32
     :return: mask (np.array shape HxW): a mask that ranges from 0. to 1. ->
                    0. meaning clean area and 1. contaminated area.
 ```
@@ -181,7 +182,7 @@ predictMask(self, inputMic):
 ```
 getDownFactor(self):
     MaskPredictor preprocess micrographs before Nnet computation. First step is donwsampling using a donwsampling factor
-    that depends on particle boxSize. This function computes the donwsampling factor
+    that depends on particle boxSize. This function computes the downsampling factor
     
     :return (float): the donwsampling factor that MaskPredictor uses internally when preprocessing the micrographs
     
@@ -193,11 +194,28 @@ close(self):
 The following lines show how to compute the mask for a given micrograph
 
 ```
-from micrograph_cleaner_em import MaskPredictor
+import numpy as np
+import mrcfile
+import micrograph_cleaner_em as mce
 
-deepLearningModelFname="/path/to/deepLearningModel.keras"
-boxSize=128
-mic= loadMic("do whatever you need") # mic is a np.array 
-with MaskPredictor(deepLearningModelFname, boxSize , gpus=[0]) as mp:
-    mask= mp.predict(mic)
+boxSize = 128 #pixels
+
+# Load the micrograph data, for mrc files you can use mrcifle
+# but you can use any other method that return a numpy  array
+
+with mrcfile.open('/path/to/micrograph.mrc') as mrc:
+    mic = mrc.data
+
+# By default, the mask predictor will try load the model at  
+# "~/.local/share/micrograph_cleaner_em/models/"
+# provide deepLearningModelFname argument to the builder if the model 
+# is placed in other location
+
+with mce.MaskPredictor(boxSize, modelPath= modelPath,  gpus=[0]) as mp:
+    mask = mp.predictMask(mic) #by default, mask is float32 numpy array
+    
+# Then write the mask as a file
+
+with mrcfile.new('mask.mrc', overwrite=True) as maskFile:
+    maskFile.set_data(mask.astype(np.half)) # as float
 ```
