@@ -41,7 +41,7 @@ def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCo
   global MASK_PREDICTOR_HANDLER
   with LOCK:
     if MASK_PREDICTOR_HANDLER is None:
-      MASK_PREDICTOR_HANDLER= MaskPredictor(deepLearningModel, boxSize, gpus)
+      MASK_PREDICTOR_HANDLER= MaskPredictor(boxSize, deepLearningModel, gpus)
 
 
   maskPredictor= MASK_PREDICTOR_HANDLER

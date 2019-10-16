@@ -19,7 +19,7 @@ class TestMaskPredictor(TestCase):
 
     with mrcfile.open(micFname, permissive=True) as f: mic = f.data.copy()
 
-    with MaskPredictor(deepLearningModelFname, boxSize, gpus=[0]) as mp:
+    with MaskPredictor(boxSize, deepLearningModelFname, gpus=[0]) as mp:
       mask = mp.predictMask(mic)
 
     self.assertTrue(mask.shape==mic.shape, "Error, mask shape is not the same that mic shape")

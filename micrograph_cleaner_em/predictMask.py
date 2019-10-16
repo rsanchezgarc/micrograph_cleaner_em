@@ -2,13 +2,12 @@
 import numpy as np
 from skimage.util import view_as_windows
 
+from micrograph_cleaner_em.config import BATCH_SIZE
 from .utils import mask_CUDA_VISIBLE_DEVICES
 from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, resizeMic
 from math import ceil
 
-from .config import MODEL_IMG_SIZE
-
-BATCH_SIZE = 16
+from .config import MODEL_IMG_SIZE, DEFAULT_MODEL_PATH
 
 
 class MaskPredictor(object):
@@ -16,10 +15,10 @@ class MaskPredictor(object):
   '''
   Class used to compute 0. to 1. masks given one numpy array of shape HxW that represents a micrograph
   '''
-  def __init__(self, deepLearningModelFname, boxSize , gpus=[0], strideFactor=2):
+  def __init__(self, boxSize, deepLearningModelFname=DEFAULT_MODEL_PATH, gpus=[0], strideFactor=2):
     '''
-    :param deepLearningModelFname (str): a path where the deep learning model will be loaded
     :param boxSize (int): estimated particle boxSize in pixels
+    :param deepLearningModelFname (str): a path where the deep learning model will be loaded
     :param gpus (list of gpu ids (ints) or None): If None, CPU only mode will be employed.
     :param strideFactor (int): Overlapping between windows. Micrographs are divided into patches and each processed individually.
                          The overlapping factor indicates how many times a given row/column is processed by the network. The
