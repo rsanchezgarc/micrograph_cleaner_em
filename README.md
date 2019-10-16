@@ -29,7 +29,7 @@ To get a complete description of usage execute
   `conda activate env_micrograph_cleaner_em`
   
 4) Install micrograph_cleaner_em from repository  
-  ` conda install -c rsanchez1369 micrograph-cleaner-em`
+  ` conda install -c rsanchez1369 -c anaconda -c conda-forge micrograph-cleaner-em`
 
 5) Download deep learning model  
   `cleanMics --download`
