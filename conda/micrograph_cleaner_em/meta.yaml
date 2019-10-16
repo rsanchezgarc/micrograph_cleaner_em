@@ -1,5 +1,5 @@
 {% set name = "micrograph-cleaner-em" %}
-{% set version = "0.26" %}
+{% set version = "0.27" %}
 {% set file_ext = "tar.gz" %}
 {% set hash_type = "sha256" %}
 {% set hash_value = "7e8ae1559719d429f71e54a33c22c74578e6f165d3f5716ee66c204636eb7213" %}
