@@ -1,13 +1,13 @@
 
 import numpy as np
 from skimage.util import view_as_windows
-
+from skimage.transform import rotate
 from micrograph_cleaner_em.config import BATCH_SIZE
 from .utils import mask_CUDA_VISIBLE_DEVICES
 from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, resizeMic
 from math import ceil
 
-from .config import MODEL_IMG_SIZE, DEFAULT_MODEL_PATH
+from .config import MODEL_IMG_SIZE, DEFAULT_MODEL_PATH, ROTATIONS
 
 
 class MaskPredictor(object):
@@ -73,23 +73,23 @@ class MaskPredictor(object):
 
     padding_list = []
     windows_list = []
-    N_ROTS = 4
-    for rot in range(N_ROTS):
-      img = np.rot90(mic, rot)
+
+    for rot_i, rot in enumerate(ROTATIONS):
+      img = rotate(mic, rot, mode="reflect")
       paddedMic, paddingTuples = padToRegularSize(img, MODEL_IMG_SIZE, self.strideFactor, fillWith0=True)
       windows, originalWinShape = self.extractPatches(paddedMic)
       windows_list.append(windows)
       padding_list.append((paddedMic.shape, paddingTuples))
 
     windows_pred = self.model.predict(np.concatenate(windows_list, axis=0), batch_size=BATCH_SIZE, verbose=1)
-    step = windows_pred.shape[0] // N_ROTS
-    for rot in range(N_ROTS):
-      micro_pred = windows_pred[rot * step:(rot + 1) * step, ...]
+    step = windows_pred.shape[0] // len(ROTATIONS)
+    for rot_i, rot in enumerate(ROTATIONS):
+      micro_pred = windows_pred[rot_i * step:(rot_i + 1) * step, ...]
       micro_pred = micro_pred.reshape(originalWinShape)
-      micShape, paddingTuples = padding_list[rot]
+      micShape, paddingTuples = padding_list[rot_i]
       mask, jumpFound = self.return_as_oneMic(micro_pred, micShape, paddingTuples, MODEL_IMG_SIZE)
-      mask_list.append(np.rot90(mask, 4 - rot))
-
+      mask = rotate(mask, -rot, mode="reflect")
+      mask_list.append( mask )
       fixedJump_list.append(jumpFound)
 
     if True in fixedJump_list:
@@ -99,7 +99,7 @@ class MaskPredictor(object):
 
     if mask.dtype!= outputPrecision:
       mask= mask.astype( outputPrecision )
-    # from matplotlib import pyplot as plt; fig= plt.figure(); fig.add_subplot(311); plt.imshow(inputMic, cmap="gray"); fig.add_subplot(312); plt.imshow(mic, cmap="gray"); fig.add_subplot(313); plt.imshow(mask); plt.show()
+#    from matplotlib import pyplot as plt; fig= plt.figure(); fig.add_subplot(311); plt.imshow(inputMic, cmap="gray"); fig.add_subplot(312); plt.imshow(mic, cmap="gray"); fig.add_subplot(313); plt.imshow(mask); plt.show()
     return mask
 
   def extractPatches(self, paddedMic):
