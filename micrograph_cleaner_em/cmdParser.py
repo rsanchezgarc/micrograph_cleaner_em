@@ -76,7 +76,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
                       help='Failure threshold. Fraction of the micrograph predicted as contamination to ignore predictions. ' +
                            'Ranges 0..1. Default 0.8')
 
-  parser.add_argument('--predictedMaskDir', type=str, nargs='?', required=False,
+  parser.add_argument('-p', '--predictedMaskDir', type=str, nargs='?', required=False,
                       help='directory to store the predicted masks. If a given mask already existed, it will be used instead' +
                            ' of a new prediction')
 
