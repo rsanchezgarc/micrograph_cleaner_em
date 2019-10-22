@@ -18,8 +18,8 @@ To get a complete description of usage execute
 
 ## INSTALLATION:
 
-### anaconda (recommended)
-
+### anaconda (recommended if NVIDIA GPU available )
+  If your system have no GPUs available, see the pip installation instead
 1) Install anaconda Python 3x version from https://www.anaconda.com/distribution/
 
 2) Create an environment for MicrographCleaner  
@@ -40,7 +40,7 @@ To get a complete description of usage execute
 
 
 1) install CUDA and cudnn in such a way that tensorflow (https://www.tensorflow.org/) can be executed. 
-   micrograph_cleaner is compatible with CUDA-8,CUDA-9 and CUDA-10.
+   micrograph_cleaner is compatible with CUDA-9 and CUDA-10.
    Tensorflow version will be automatically selected according your CUDA version and installed later.
    CUDA is available at https://developer.nvidia.com/cuda-toolkit and cudnn is available at
    https://developer.nvidia.com/cudnn.  
@@ -208,10 +208,10 @@ with mrcfile.open('/path/to/micrograph.mrc') as mrc:
 
 # By default, the mask predictor will try load the model at  
 # "~/.local/share/micrograph_cleaner_em/models/"
-# provide deepLearningModelFname argument to the builder if the model 
-# is placed in other location
+# provide , deepLearningModelFname= modelPath argument to the builder 
+# if the model is placed in other location 
 
-with mce.MaskPredictor(boxSize, modelPath= modelPath,  gpus=[0]) as mp:
+with mce.MaskPredictor(boxSize, gpus=[0]) as mp:
     mask = mp.predictMask(mic) #by default, mask is float32 numpy array
     
 # Then write the mask as a file
