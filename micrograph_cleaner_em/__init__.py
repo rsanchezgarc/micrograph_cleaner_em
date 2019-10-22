@@ -10,6 +10,6 @@ warnings.filterwarnings("ignore", "Map ID string not found")
 warnings.filterwarnings("ignore", category=ImportWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-
+from .cleanMics import commanLineFun
 from .cleanOneMic import cleanOneMic
 from .predictMask import MaskPredictor
