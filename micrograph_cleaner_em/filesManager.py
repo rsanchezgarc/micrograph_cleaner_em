@@ -1,10 +1,6 @@
-import sys, os
+import os
 import numpy as np
 import pandas as pd
-import warnings
-
-warnings.filterwarnings("ignore", "No training configuration found")
-warnings.filterwarnings("ignore", "Cannot provide views on a non-contiguous")
 
 try:
   # Import xmipp libraries to read/write files
@@ -26,8 +22,6 @@ except ImportError:
   import mrcfile
   from skimage.io import imsave, imread
 
-  warnings.filterwarnings("ignore", "Unrecognised machine stamp")
-  warnings.filterwarnings("ignore", "Map ID string not found")
 
 
   def loadMic(fname):
