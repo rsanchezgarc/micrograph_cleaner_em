@@ -14,8 +14,8 @@ class TestTestInstallation(TestCase):
                    "%(installCmd)s && cleanMics -h")
   CLEAN_INSTALL_CMD=(CONDA_ACTIVATE_CMD+" && conda deactivate && conda env remove -y -n  %(envName)s")
 
-  def test_testInstallationGeneric(self, installCmd):
-    from subprocess import check_call, check_output
+  def _test_testInstallationGeneric(self, installCmd):
+    from subprocess import check_call
 
     envName= TestTestInstallation.ENV_NAME_TEST
     for pyVersion in TestTestInstallation.VERSIONS:
@@ -29,11 +29,11 @@ class TestTestInstallation(TestCase):
         check_call(TestTestInstallation.CLEAN_INSTALL_CMD%locals(), shell=True, env=os.environ )
 
   def test_testInstallationSetupPy(self):
-    self.test_testInstallationGeneric("python setup.py install")
+    self._test_testInstallationGeneric("cd ../.. && python setup.py install")
 
   def test_testInstallationPip(self):
-    self.test_testInstallationGeneric("cd /tmp && python -m pip install micrograph-cleaner-em")
+    self._test_testInstallationGeneric("cd /tmp && python -m pip install micrograph-cleaner-em")
 
   def test_testInstallationConda(self):
-    self.test_testInstallationGeneric("cd /tmp && conda install --yes micrograph-cleaner-em -c rsanchez1369 -c anaconda "
+    self._test_testInstallationGeneric("cd /tmp && conda install --yes micrograph-cleaner-em -c rsanchez1369 -c anaconda "
                                       "-c conda-forge")
