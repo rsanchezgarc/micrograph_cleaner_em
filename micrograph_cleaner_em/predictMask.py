@@ -65,7 +65,6 @@ class MaskPredictor(object):
 
     originalShape = inputMic.shape
     mic = preprocessMic(inputMic, self.boxSize)
-
     # #print("Donwsampled from %s --> %s"%( originalShape, mic.shape ) )
 
     mask_list = []
@@ -77,7 +76,12 @@ class MaskPredictor(object):
     for rot_i, rot in enumerate(ROTATIONS):
       img = rotate(mic, rot, mode="reflect")
       paddedMic, paddingTuples = padToRegularSize(img, MODEL_IMG_SIZE, self.strideFactor, fillWith0=True)
-      windows, originalWinShape = self.extractPatches(paddedMic)
+      try:
+        windows, originalWinShape = self.extractPatches(paddedMic)
+      except ValueError as ve:
+        if "`window_shape` is too large" in (str(ve)):
+          raise Exception("Error, the boxsize you have provided is likely to big to be a particle")
+        raise ve
       windows_list.append(windows)
       padding_list.append((paddedMic.shape, paddingTuples))
 
