@@ -170,10 +170,12 @@ micrograph_cleaner_em.MaskPredictor(boxSize, deepLearningModelFname=DEFAULT_PATH
 
 
 ```
-predictMask(self, inputMic):
+predictMask(self, inputMic, preproDownsampleMic=1, outputPrecision=np.float32):
     Obtains a contamination mask for a given inputMic
 
     :param inputMic (np.array shape HxW): the micrograph to clean
+    :param preproDownsampleMic: the downsampling factor applied to the micrograph before processing. Make it bigger if
+                   large carbon areas are not identified
     :param outputPrecision: the type of the floating point number desired as input. Default float32
     :return: mask (np.array shape HxW): a mask that ranges from 0. to 1. ->
                    0. meaning clean area and 1. contaminated area.

@@ -8,8 +8,8 @@ os.environ['OMP_NUM_THREADS']="4"
 from joblib import Parallel, delayed
 
 
-def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactor, deepThr,
-         sizeThr, predictedMaskDir, gpus="0"):
+def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactorCoords, deepThr,
+         sizeThr, predictedMaskDir, preproDownsampleMic=1, gpus="0"):
   from .utils import getFilesInPaths, getMatchingFiles, resolveDesiredGpus
 
   gpus, n_jobs= resolveDesiredGpus(gpus)
@@ -32,9 +32,10 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
       'predictedMaskFname': predictedMaskFname,
       'deepLearningModel' : deepLearningModel,
       'boxSize': boxSize,
-      'downFactor': downFactor,
+      'downFactorCoords': downFactorCoords,
       'deepThr': deepThr,
       'sizeThr': sizeThr,
+      'preproDownsampleMic':preproDownsampleMic,
       'gpus': [gpus[i % n_jobs]]
     }
     return args

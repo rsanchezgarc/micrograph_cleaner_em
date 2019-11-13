@@ -44,10 +44,10 @@ def padToRegularSize(inputMic, windowSide, strideDiv, fillWith0=True ):
 def getDownFactor(particleSize):
   return particleSize/float(DESIRED_PARTICLE_SIZE)
   
-def preprocessMic(mic, particleSize):
+def preprocessMic(mic, particleSize, preproDownsampleMic=1):
 
   mic= normalizeImg(mic, squeezeToRange=False, iqrRange=(25,75))
-  downFactor= getDownFactor(particleSize)
+  downFactor= getDownFactor(particleSize)*preproDownsampleMic
   mic= downsampleMic(mic, downFactor)
   mic= normalizeImg(mic, squeezeToRange=True, sigmoidInsteadTanh=True, iqrRange=(10, 90))
   return mic

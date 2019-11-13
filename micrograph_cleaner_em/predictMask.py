@@ -53,18 +53,20 @@ class MaskPredictor(object):
       arrayOfPatches[i][arrayOfPatches[i] <= 0.5] = 0
     return arrayOfPatches
 
-  def predictMask(self, inputMic, outputPrecision=np.float32):
+  def predictMask(self, inputMic, preproDownsampleMic=1, outputPrecision=np.float32):
     '''
     Obtains a contamination mask for a given inputMic
 
     :param inputMic (np.array shape HxW): the micrograph to clean
+    :param preproDownsampleMic: the downsampling factor applied to the micrograph before processing. Make it bigger if
+                  large carbon areas are not identified
     :param outputPrecision: the type of the floating point number desired as input. Default float32
     :return: mask (np.array shape HxW): a mask that ranges from 0. to 1. ->
                    0. meaning clean area and 1. contaminated area.
     '''
 
     originalShape = inputMic.shape
-    mic = preprocessMic(inputMic, self.boxSize)
+    mic = preprocessMic(inputMic, self.boxSize, preproDownsampleMic)
     # #print("Donwsampled from %s --> %s"%( originalShape, mic.shape ) )
 
     mask_list = []
