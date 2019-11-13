@@ -2,7 +2,7 @@ import sys, os
 from setuptools import setup
 from subprocess import Popen, PIPE
 
-VERSION="0.31"
+VERSION="0.32"
 def readme():
   readmePath= os.path.abspath(os.path.join(__file__, "..", "README.md") )
   with open(readmePath) as f:
