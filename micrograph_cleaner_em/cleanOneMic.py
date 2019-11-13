@@ -45,7 +45,9 @@ def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCo
 
 
   maskPredictor= MASK_PREDICTOR_HANDLER
-
+  if outCoordsFname is not None and os.path.isfile(outCoordsFname):
+    print("WARNING: coordinates %s already processed. Skipping" % (outCoordsFname))
+    
   if predictedMaskFname is not None and os.path.isfile(predictedMaskFname):
     print("WARNING: mask already predicted for %s. Using it instead computing a new predicted mask"%(micFname))
     predictedMask= loadMic( predictedMaskFname)
