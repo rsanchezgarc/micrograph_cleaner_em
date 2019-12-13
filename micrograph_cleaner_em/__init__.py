@@ -14,6 +14,5 @@ try:
 except NameError:
   pass
 
-from .cleanMics import commanLineFun
 from .cleanOneMic import cleanOneMic
 from .predictMask import MaskPredictor

@@ -132,15 +132,11 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
     sys.exit(1)
 
   if args["inputCoordsDir"] is None and args["predictedMaskDir"] is None:
-    raise Exception("Either inputCoordsDir or predictedMaskDir (or both) must be provided")
-    parser.print_help()
+    raise argparse.ArgumentTypeError("Either inputCoordsDir or predictedMaskDir (or both) must be provided")
   if args["inputCoordsDir"] is not None and args["outputCoordsDir"] is None:
-    raise Exception("Error, if inputCoordsDir provided, then outputCoordsDir must also be provided")
-    parser.print_help()
-
+    raise argparse.ArgumentTypeError("Error, if inputCoordsDir provided, then outputCoordsDir must also be provided")
   if args["outputCoordsDir"] is not None and args["inputCoordsDir"] is None:
-    raise Exception("Error, if outputCoordsDir provided, then inputCoordsDir must also be provided")
-    parser.print_help()
+    raise argparse.ArgumentTypeError("Error, if outputCoordsDir provided, then inputCoordsDir must also be provided")
 
   if "-1" in args["gpus"]:
     args["gpus"] = None
