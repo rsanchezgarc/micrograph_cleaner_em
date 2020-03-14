@@ -7,7 +7,7 @@ LOCK = Lock()
 MASK_PREDICTOR_HANDLER=None
 
 def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCoordsFname=None, outCoordsFname=None,
-                predictedMaskFname=None, downFactor=1, deepThr=0.2, sizeThr=0.8, gpus=[0]):
+                predictedMaskFname=None, downFactorCoords=1, preproDownsampleMic=1, deepThr=0.2, sizeThr=0.8, gpus=[0]):
   '''
   cleanOneMic computes a 0. to 1. mask given one micrograph fname. Values close to 0 are assigned to clean areas whereas
   values close to 1 correspond to carbon or other contaminated regions.
@@ -20,8 +20,10 @@ def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCo
   :param predictedMaskFname: fname to store the predicted mask. If None, no predicted mask is saved to disk
   :param deepLearningModel: a path where the deep learning model is saved
   :param boxSize: estimated particle boxSize in pixels (int) of the input micrograph
-  :param downFactor: Downsampling factor applied to the coordinates. Set it !=1 if the coordinates where picked
+  :param downFactorCoords: Downsampling factor applied to the coordinates. Set it !=1 if the coordinates where picked
                      from a different micrograph (down/up sampled) than micFname.
+  :param preproDownsampleMic: Preprocess micrographs downsampling factor. Default=1 will work for most cases, set it
+                              bigger than 1 for cases with large carbon regions that are not being correctly identified
   :param deepThr: Threshold to rule out coordinates. Particles are ruled out if score> deepThr.
   :param sizeThr: Threshold to ignore masks. If sizeThr fraction of the micrograph is predicted as contamination, skip
                     this micrograph for coordinates cleaning.
@@ -31,7 +33,7 @@ def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCo
   :return: predictedMask as np.array of the same shape that the micrograph contained in micFname
   '''
   print(micFname, boxSize, deepLearningModel, inputCoordsFname, outCoordsFname,
-                predictedMaskFname, downFactor, deepThr, sizeThr, gpus)
+        predictedMaskFname, downFactorCoords, deepThr, sizeThr, gpus)
 
   from .filesManager import loadMic, loadCoords, writeMic, writeCoords
   from .predictMask import MaskPredictor
@@ -45,18 +47,20 @@ def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCo
 
 
   maskPredictor= MASK_PREDICTOR_HANDLER
-
+  if outCoordsFname is not None and os.path.isfile(outCoordsFname):
+    print("WARNING: coordinates %s already processed. Skipping" % (outCoordsFname))
+    
   if predictedMaskFname is not None and os.path.isfile(predictedMaskFname):
     print("WARNING: mask already predicted for %s. Using it instead computing a new predicted mask"%(micFname))
     predictedMask= loadMic( predictedMaskFname)
   else:
     inputMic= loadMic( micFname )
-    predictedMask= maskPredictor.predictMask(inputMic)
+    predictedMask= maskPredictor.predictMask(inputMic, preproDownsampleMic)
     if predictedMaskFname is not None:
       writeMic(predictedMaskFname, predictedMask)
   
   if inputCoordsFname is not None:
-    inputCoords= loadCoords(inputCoordsFname, downFactor)
+    inputCoords= loadCoords(inputCoordsFname, downFactorCoords)
     if deepThr is not None:
       deepThr= None if deepThr<=0 else deepThr
     filteredCoords= filterCoords( inputCoords, predictedMask, deepThr, sizeThr)

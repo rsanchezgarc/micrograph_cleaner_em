@@ -1,8 +1,8 @@
 {% set name = "micrograph-cleaner-em" %}
-{% set version = "0.27" %}
+{% set version = "0.32" %}
 {% set file_ext = "tar.gz" %}
 {% set hash_type = "sha256" %}
-{% set hash_value = "7e8ae1559719d429f71e54a33c22c74578e6f165d3f5716ee66c204636eb7213" %}
+{% set hash_value = "b259a24265537f41d7a8a8b734cbf3026b5a85f56a72df5e00c2ef4bba3c3a64" %}
 package:
   name: '{{ name|lower }}'
   version: '{{ version }}'
@@ -22,24 +22,25 @@ requirements:
   host:
     - python {{ python }}
     - setuptools
-    - scikit-image
-    - joblib
-    - tensorflow-gpu ==1.12.0
-    - _tflow_select ==2.1.0 gpu
-    - keras
-    - pandas
-    - mrcfile
-    - requests
+    - numpy==1.15.4
+    - scikit-image==0.14.2
+    - joblib==0.12
+    - tensorflow-gpu==1.12
+    - _tflow_select==2.1.0 gpu
+    - pandas==0.24
+    - mrcfile==1.1
+    - requests==2.22
   run:
     - python
-    - scikit-image
-    - joblib
-    - tensorflow-gpu ==1.12.0
-    - _tflow_select ==2.1.0 gpu
-    - keras
-    - pandas
-    - mrcfile
-    - requests
+    - setuptools
+    - numpy==1.15.4
+    - scikit-image==0.14.2
+    - joblib==0.12
+    - tensorflow-gpu==1.12
+    - _tflow_select==2.1.0 gpu
+    - pandas==0.24
+    - mrcfile==1.1
+    - requests==2.22
 
 test:
   imports:

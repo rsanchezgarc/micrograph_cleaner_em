@@ -63,7 +63,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
   parser.add_argument('-b', '--boxSize', metavar='PXLs', type=int, required=True,
                       help='particles box size in pixels')
 
-  parser.add_argument('-s', '--downFactor', type=float, nargs='?', required=False, default=1,
+  parser.add_argument('-s', '--downFactorCoords', type=float, nargs='?', required=False, default=1,
                       help='(optional) micrograph downsampling factor to scale coordinates, Default no scaling. Use it '+
                             'only if the micrographs have been down/up sampled with respect the picked coordinates')
 
@@ -79,6 +79,10 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
   parser.add_argument('-p', '--predictedMaskDir', type=str, nargs='?', required=False,
                       help='directory to store the predicted masks. If a given mask already existed, it will be used instead' +
                            ' of a new prediction')
+
+  parser.add_argument('--preproDownsampleMic', metavar='PREPRO_DOWNFACTOR', type=int, required=False, default=1,
+                      help='Downsampling factor to apply to the micrographs before prediction. Default value will work for'
+                           'most cases. Increse it if large carbon areas are not correctly identified')
 
   parser.add_argument('-g', '--gpus', metavar='GPU_Ids', type=str, required=False, default="0",
                       help='GPU ids to employ. Comma separated list. E.g. "0,1". Default 0. use "-1" for CPU-only computation' +
@@ -128,15 +132,11 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
     sys.exit(1)
 
   if args["inputCoordsDir"] is None and args["predictedMaskDir"] is None:
-    raise Exception("Either inputCoordsDir or predictedMaskDir (or both) must be provided")
-    parser.print_help()
+    raise argparse.ArgumentTypeError("Either inputCoordsDir or predictedMaskDir (or both) must be provided")
   if args["inputCoordsDir"] is not None and args["outputCoordsDir"] is None:
-    raise Exception("Error, if inputCoordsDir provided, then outputCoordsDir must also be provided")
-    parser.print_help()
-
+    raise argparse.ArgumentTypeError("Error, if inputCoordsDir provided, then outputCoordsDir must also be provided")
   if args["outputCoordsDir"] is not None and args["inputCoordsDir"] is None:
-    raise Exception("Error, if outputCoordsDir provided, then inputCoordsDir must also be provided")
-    parser.print_help()
+    raise argparse.ArgumentTypeError("Error, if outputCoordsDir provided, then inputCoordsDir must also be provided")
 
   if "-1" in args["gpus"]:
     args["gpus"] = None
