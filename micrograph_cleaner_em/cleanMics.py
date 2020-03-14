@@ -21,9 +21,8 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
                     "not allow for unknow metadata labels")
   matchingFnames= getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskDir, coordsExtension)
   assert len(matchingFnames)>0, "Error, there are no matching coordinate-micrograph files"
-  from .cleanOneMic import cleanOneMic
 
-  def prepareArgs(multipleNames, i):
+  def prepareArgs(multipleNames):
     micFname, inputCoordsFname, outCoordsFname, predictedMaskFname= multipleNames
     args={
       'micFname': micFname,
@@ -35,14 +34,21 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
       'downFactor': downFactor,
       'deepThr': deepThr,
       'sizeThr': sizeThr,
-      'gpus': [gpus[i % n_jobs]]
     }
     return args
 
-  Parallel(n_jobs= n_jobs)( delayed(cleanOneMic)( **prepareArgs(multipleNames, i))
-                                            for i, multipleNames in enumerate(sorted(matchingFnames.values() ) ))
+  with Parallel(n_jobs=n_jobs, batch_size=1) as parallel:
+    pids= set(parallel(delayed(os.getpid)() for i in range(2000)))
+    pid2GpuDict= dict(zip(pids, gpus))
+    def pid2Gpu():
+      return pid2GpuDict[os.getpid()]
 
+    parallel( delayed(launch_cleanOneMic)( prepareArgs(multipleNames), pid2Gpu) for  multipleNames in sorted(matchingFnames.values()))
 
+def launch_cleanOneMic(cleanMicsArgs, gpuFun):
+  cleanMicsArgs["gpus"]= [gpuFun()]
+  from .cleanOneMic import cleanOneMic
+  cleanOneMic(**cleanMicsArgs)
 
 def commanLineFun():
   from .cmdParser import parseArgs
