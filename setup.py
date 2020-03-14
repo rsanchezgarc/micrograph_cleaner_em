@@ -10,6 +10,10 @@ def readme():
 
 nvccProgram = Popen(["which", "nvcc"],stdout=PIPE).stdout.read()
 tensorFlowTarget = "==1.12"
+
+if sys.version_info[0] <3:
+  FileNotFoundError= OSError
+
 if nvccProgram== "":
   print("No cuda instalation found. Installing cpu version")
 else:
@@ -41,7 +45,7 @@ install_requires=[
     ]
 
 if sys.version_info[0] < 3:
-  install_requires = ['matplotlib==2.2.4', 'networkx==2.2', 'PyWavelets==1.0.3']+install_requires
+  install_requires = ['pillow==5.0', 'matplotlib==2.2.4', 'networkx==2.2', 'PyWavelets==1.0.3']+install_requires
 
 setup(name='micrograph_cleaner_em',
   version=VERSION,
