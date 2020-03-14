@@ -25,7 +25,11 @@ class MaskPredictor(object):
                          bigger the better the predictions, but higher computational cost.
     '''
     mask_CUDA_VISIBLE_DEVICES(gpus)
-    import tensorflow.keras as keras
+    try:
+      import tensorflow.keras as keras
+    except ImportError:
+      import tensorflow
+      keras = tensorflow.keras
     self.model = keras.models.load_model(deepLearningModelFname, {})
     self.boxSize = boxSize
     self.strideFactor= strideFactor
@@ -138,7 +142,11 @@ class MaskPredictor(object):
 
   def close(self):
     del self.model
-    import tensorflow.keras as keras
+    try:
+      import tensorflow.keras as keras
+    except ImportError:
+      import tensorflow
+      keras = tensorflow.keras
     keras.backend.clear_session()
 
   def __exit__(self, exc_type, exc_value, tb):
