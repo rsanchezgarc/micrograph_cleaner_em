@@ -1,13 +1,15 @@
 import os
-from subprocess import CalledProcessError
 from unittest import TestCase
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
 
 class TestTestInstallation(TestCase):
   VERSIONS= ["2.7", "3.6"]
   ENV_NAME_TEST= "test_mic_cleaner_34r4341324132"
+  os.environ["PATH"]+=":"+os.path.expanduser("~/app/anaconda3/bin/")
+
   CONDA_PATH = os.path.split(os.path.split(check_output("which conda", shell=True).strip().decode("utf-8"))[0])[0]
+
   CONDA_ACTIVATE_CMD = ". " + os.path.join(CONDA_PATH, "etc/profile.d/conda.sh")
   TEST_INSTALL_CMD= ("export PYTHONPATH='' && conda create -y -n  %(envName)s python=%(pyVersion)s && "+
                    CONDA_ACTIVATE_CMD+" && "+"conda activate %(envName)s && "+" ls && "
