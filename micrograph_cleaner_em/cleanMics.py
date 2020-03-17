@@ -22,7 +22,7 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
   matchingFnames= getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskDir, coordsExtension)
   assert len(matchingFnames)>0, "Error, there are no matching coordinate-micrograph files"
 
-  def prepareArgs(multipleNames):
+  def prepareArgs(multipleNames, gpuId):
     micFname, inputCoordsFname, outCoordsFname, predictedMaskFname= multipleNames
     args={
       'micFname': micFname,
@@ -34,22 +34,23 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
       'downFactorCoords': downFactorCoords,
       'deepThr': deepThr,
       'sizeThr': sizeThr,
-      'preproDownsampleMic':preproDownsampleMic
+      'preproDownsampleMic':preproDownsampleMic,
+      'gpus':[gpuId]
     }
     return args
 
   with Parallel(n_jobs=n_jobs, batch_size=1) as parallel:
-    pids= set(parallel(delayed(os.getpid)() for i in range(2000)))
-    pid2GpuDict= dict(zip(pids, gpus))
-    def pid2Gpu():
-      return pid2GpuDict[os.getpid()]
+    args=[ [] for i in range(n_jobs)]
+    for i, multipleNames in enumerate(sorted(matchingFnames.values())):
+      args[i % n_jobs].append( prepareArgs(multipleNames, gpus[i % n_jobs]) )
 
-    parallel( delayed(launch_cleanOneMic)( prepareArgs(multipleNames), pid2Gpu) for  multipleNames in sorted(matchingFnames.values()))
+    parallel( delayed(launch_batch_cleanOneMic)( batchOfArgs) for  batchOfArgs in args)
 
-def launch_cleanOneMic(cleanMicsArgs, gpuFun):
-  cleanMicsArgs["gpus"]= [gpuFun()]
+def launch_batch_cleanOneMic(batchOfArgs):
+
   from .cleanOneMic import cleanOneMic
-  cleanOneMic(**cleanMicsArgs)
+  for cleanMicsArgs in batchOfArgs:
+    cleanOneMic(**cleanMicsArgs)
 
 def commanLineFun():
   from .cmdParser import parseArgs
