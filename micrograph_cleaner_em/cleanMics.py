@@ -39,6 +39,11 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
     }
     return args
 
+  from .cleanOneMic import cleanOneMic
+  def launch_batch_cleanOneMic(batchOfArgs):
+    for cleanMicsArgs in batchOfArgs:
+      cleanOneMic(**cleanMicsArgs)
+
   with Parallel(n_jobs=n_jobs, batch_size=1) as parallel:
     args=[ [] for i in range(n_jobs)]
     for i, multipleNames in enumerate(sorted(matchingFnames.values())):
@@ -46,11 +51,7 @@ def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxS
 
     parallel( delayed(launch_batch_cleanOneMic)( batchOfArgs) for  batchOfArgs in args)
 
-def launch_batch_cleanOneMic(batchOfArgs):
 
-  from .cleanOneMic import cleanOneMic
-  for cleanMicsArgs in batchOfArgs:
-    cleanOneMic(**cleanMicsArgs)
 
 def commanLineFun():
   from .cmdParser import parseArgs

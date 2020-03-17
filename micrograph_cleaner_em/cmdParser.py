@@ -85,8 +85,8 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
                            'most cases. Increse it if large carbon areas are not correctly identified')
 
   parser.add_argument('-g', '--gpus', metavar='GPU_Ids', type=str, required=False, default="0",
-                      help='GPU ids to employ. Comma separated list. E.g. "0,1". Default 0. use "-1" for CPU-only computation' +
-                           'or "all" to use all devices found in CUDA_VISIBLE_DEVICES')
+                      help='GPU ids to employ. Comma separated list. E.g. "0,1". Default 0. use negative number for CPU-only number of '
+                           'subprocesses or "all" to use all devices found in CUDA_VISIBLE_DEVICES')
 
   class _DownloadModel(argparse.Action):
     def __init__(self, option_strings, dest, nargs=None, const=None, default=None, type=None,
