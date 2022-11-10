@@ -39,6 +39,7 @@ install_requires=[
         'joblib==0.12',
         'numpy ==1.15.4',
         'tensorflow%s'%tensorFlowTarget,
+        'h5py==2.10',
         'pandas==0.24',
         'mrcfile==1.1',
         'requests==2.22',
