@@ -37,7 +37,7 @@ install_requires=[
         'scikit-image==0.14.2',
         'scipy==1.1',
         'joblib==0.12',
-        'numpy ==1.15.4',
+        'numpy ==1.22.0',
         'tensorflow%s'%tensorFlowTarget,
         'h5py==2.10',
         'pandas==0.24',
