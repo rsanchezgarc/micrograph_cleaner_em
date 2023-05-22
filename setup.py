@@ -42,7 +42,7 @@ install_requires=[
         'h5py==2.10',
         'pandas==0.24',
         'mrcfile==1.1',
-        'requests==2.22',
+        'requests==2.31.0',
     ]
 
 if sys.version_info[0] < 3:
