@@ -221,3 +221,6 @@ with mce.MaskPredictor(boxSize, gpus=[0]) as mp:
 with mrcfile.new('mask.mrc', overwrite=True) as maskFile:
     maskFile.set_data(mask.astype(np.half)) # as float
 ```
+
+## Dataset
+The dataset used in this work can be downloaded from https://zenodo.org/records/6862671.
