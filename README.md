@@ -114,7 +114,7 @@ case corresponds to an example in which we use for particle picking raw microgra
 
 4) Any combination of previous options.  
 
-Trained MicrographCleaner model is available at http://campins.cnb.csic.es/micrograph_cleaner/ and can be automatically download executing  
+Trained MicrographCleaner model is available [here](https://scipion.cnb.csic.es/downloads/scipion/software/em/xmipp_model_deepMicrographCleaner.tgz) and can be automatically download executing  
 `cleanMics --download`
 
 
