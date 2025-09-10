@@ -17,6 +17,7 @@ To get a complete description of usage execute
 
 
 ## INSTALLATION:
+*New!* The main branch is quite old and won't work on a modern GPU card. If it is your case, you can try to install from the new [tf2 branch](https://github.com/rsanchezgarc/micrograph_cleaner_em/tree/tf2)
 
 ### anaconda (recommended if NVIDIA GPU available )
   If your system have no GPUs available, see the pip installation instead
