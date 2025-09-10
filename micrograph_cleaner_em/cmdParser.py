@@ -107,7 +107,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
         downloadPath = os.path.abspath(os.path.expanduser(values[0]))
       if not os.path.exists(downloadPath):
         os.makedirs(downloadPath)
-      deepLearningModelPath = os.path.join(downloadPath, "defaultModel.keras")
+      deepLearningModelPath = os.path.join(downloadPath, "defaultModel.h5")
       print("DOWNLAODING MODEL at %s" % (downloadPath))
       with open(deepLearningModelPath, 'wb') as f:
         content = gzip.GzipFile(fileobj=BytesIO(r.content))
@@ -124,7 +124,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
   if deepLearningModelPath is None:
     if not os.path.exists(DEFAULT_MODEL_PATH):
       os.makedirs(DEFAULT_MODEL_PATH)
-    deepLearningModelPath = os.path.join(DEFAULT_MODEL_PATH, "defaultModel.keras")
+    deepLearningModelPath = os.path.join(DEFAULT_MODEL_PATH, "defaultModel.h5")
   args["deepLearningModel"] = deepLearningModelPath
   if not os.path.isfile(deepLearningModelPath):
     print(("Deep learning model not found at %s. Downloading default model with --download or " +

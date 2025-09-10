@@ -1,6 +1,5 @@
 import numpy as np
 
-from skimage.util import pad
 from skimage.transform import resize
 
 from .config import DESIRED_PARTICLE_SIZE
@@ -36,9 +35,9 @@ def padToRegularSize(inputMic, windowSide, strideDiv, fillWith0=True ):
   
   paddingValues= [paddingHeight, paddingWidth]
   if fillWith0:
-    paddedMic= pad(inputMic, paddingValues, mode="constant", constant_values= np.min(inputMic) )
+    paddedMic= np.pad(inputMic, paddingValues, mode="constant", constant_values= np.min(inputMic) )
   else:
-    paddedMic= pad(inputMic, paddingValues, mode="wrap" )
+    paddedMic= np.pad(inputMic, paddingValues, mode="wrap" )
   return paddedMic, paddingValues
   
 def getDownFactor(particleSize):

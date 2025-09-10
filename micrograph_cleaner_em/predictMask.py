@@ -6,6 +6,7 @@ from micrograph_cleaner_em.config import BATCH_SIZE
 from .utils import mask_CUDA_VISIBLE_DEVICES
 from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, resizeMic
 from math import ceil
+import warnings
 
 from .config import MODEL_IMG_SIZE, DEFAULT_MODEL_PATH, ROTATIONS
 
@@ -25,18 +26,50 @@ class MaskPredictor(object):
                          bigger the better the predictions, but higher computational cost.
     '''
     mask_CUDA_VISIBLE_DEVICES(gpus)
-    try:
-      import tensorflow.keras as keras
-    except ImportError:
-      import tensorflow
-      keras = tensorflow.keras
-    self.model = keras.models.load_model(deepLearningModelFname, {})
+    import tensorflow as tf
+    import keras
+    for _gpu in tf.config.list_physical_devices("GPU"):
+      try:
+        tf.config.experimental.set_memory_growth(_gpu, True)
+      except Exception:
+        pass
+    tf.config.optimizer.set_jit(False)
+    self.model = keras.models.load_model(
+              deepLearningModelFname,
+              custom_objects={"LeakyReLU": keras.layers.LeakyReLU}, #This is to handle the legacy code
+              compile=False)
+
+
     self.boxSize = boxSize
     self.strideFactor= strideFactor
-    if gpus is not None:
-      if len(gpus) > 1:
-        self.model = keras.utils.multi_gpu_model(self.model, gpus=gpus)
 
+    if gpus is not None and len(gpus) > 0:
+        # Keep only the requested physical GPUs (by index)
+        physical = tf.config.list_physical_devices("GPU")
+        select = [physical[i] for i in gpus if i < len(physical)]
+        if select:
+            tf.config.set_visible_devices(select, "GPU")
+            for dev in select:
+                try:
+                    tf.config.experimental.set_memory_growth(dev, True)
+                except Exception:
+                    pass
+            if len(select) > 1:
+                # Recreate model under distribution scope for multi-GPU inference
+                strategy = tf.distribute.MirroredStrategy(
+                    devices=[f"/GPU:{i}" for i in range(len(select))]
+                )
+                with strategy.scope():
+                    self.model = keras.models.load_model(
+                        deepLearningModelFname,
+                        custom_objects={"LeakyReLU": keras.layers.LeakyReLU},
+                        compile=False
+                    )
+            # else: single requested GPU already configured above; nothing else to do
+        else:
+            # Requested indices not available → force CPU
+            tf.config.set_visible_devices([], "GPU")
+            warnings.warn("Warning, GPU not found useing  CPU")
   def getDownFactor(self):
     '''
     MaskPredictor preprocess micrographs before Nnet computation. First step is donwsampling using a donwsampling factor

@@ -1,0 +1,27 @@
+# Core DL stack
+#tensorflow>=2.16,<2.18
+#keras>=3.2,<3.4
+tensorflow[and-cuda]>=2.16,<2.18
+keras>=3.2,<3.4
+
+# Array / scientific
+numpy>=1.26
+scipy>=1.10
+h5py>=3.10
+joblib>=1.4
+pandas>=2.3
+
+# Imaging / IO
+scikit-image>=0.22
+opencv-python-headless>=4.8
+pillow>=10.0
+imageio>=2.31
+mrcfile>=1.5
+
+# Utils / plotting (optional but commonly used in the repo style)
+matplotlib>=3.8
+tqdm>=4.66
+click>=8.1
+
+# TF sometimes tightens this; keep it broad but safe
+protobuf>=3.20,<6

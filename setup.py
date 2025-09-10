@@ -1,67 +1,47 @@
-import sys, os
-from setuptools import setup
-from subprocess import Popen, PIPE
+from pathlib import Path
+from setuptools import setup, find_packages
 
-VERSION="0.37"
-def readme():
-  readmePath= os.path.abspath(os.path.join(__file__, "..", "README.md") )
-  with open(readmePath) as f:
-      return f.read()
+ROOT = Path(__file__).parent
 
-nvccProgram = Popen(["which", "nvcc"],stdout=PIPE).stdout.read()
-tensorFlowTarget = "==1.12"
+# Prefer README for long_description
+long_description = ""
+readme = ROOT / "README.md"
+if readme.exists():
+    long_description = readme.read_text(encoding="utf-8")
 
-if sys.version_info[0] <3:
-  FileNotFoundError= OSError
-
-if nvccProgram== "":
-  print("No cuda instalation found. Installing cpu version")
-else:
-  try:
-    nvccVersion = Popen(["nvcc", '--version'],stdout=PIPE).stdout.read().decode("utf-8")
-  except FileNotFoundError:
-    nvccVersion=""
-  if "release 9.0" in nvccVersion:  # cuda 9
-    print("CUDA 9 found")
-    tensorFlowTarget = "-gpu==1.12.0"
-  elif "release 10.0" in nvccVersion:  # cuda 10
-    print("CUDA 10.0 found")
-    tensorFlowTarget = "-gpu==1.13.0"
-  elif "release 10.1" in nvccVersion:  # cuda 10
-    print("CUDA 10.1 found")
-    tensorFlowTarget = "-gpu==1.14.0"
-  else:
-    print("Unrecognized CUDA version. Installing cpu version")
-
-install_requires=[
-        'scikit-image==0.14.2',
-        'scipy==1.1',
-        'joblib==0.12',
-        'numpy ==1.15.4',
-        'tensorflow%s'%tensorFlowTarget,
-        'h5py==2.10',
-        'pandas==0.24',
-        'mrcfile==1.1',
-        'requests==2.22',
+# Read requirements dynamically
+req_file = ROOT / "requirements.txt"   # change to "requests.txt" if that's your filename
+with req_file.open(encoding="utf-8") as f:
+    install_requires = [
+        line.strip()
+        for line in f
+        if line.strip() and not line.startswith("#")
     ]
 
-if sys.version_info[0] < 3:
-  install_requires = ['pillow==5.0', 'matplotlib==2.2.4', 'networkx==2.2', 'PyWavelets==1.0.3']+install_requires
-
-setup(name='micrograph_cleaner_em',
-  version=VERSION,
-  description='Deep learning for cryo-EM micrograph cleaning',
-  long_description=readme(),
-  long_description_content_type="text/markdown",
-  keywords='cryo-EM deep learning',
-  url='https://github.com/rsanchezgarc/micrograph_cleaner_em',
-  author='Ruben Sanchez-Garcia',
-  author_email='rsanchez@cnb.csic.es',
-  license='Apache 2.0',
-  packages=[ 'micrograph_cleaner_em' ],
-  install_requires= install_requires,
-  entry_points={
-      'console_scripts': ['cleanMics=micrograph_cleaner_em.cleanMics:commanLineFun'],
-  },
-  include_package_data=True,
-  zip_safe=False)
+setup(
+    name="micrograph-cleaner-em",
+    version="1.1.0",
+    description="Deep-learning micrograph denoising/segmentation for cryo-EM (TF2/Keras3 rescue)",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/rsanchezgarc/micrograph_cleaner_em",
+    author="Original authors + maintainers",
+    license="MIT",
+    packages=find_packages(exclude=("tests", "docs", "examples")),
+    include_package_data=True,
+    python_requires=">=3.9",
+    install_requires=install_requires,
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering :: Image Processing",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    ],
+    entry_points={
+        "console_scripts": [
+           "cleanMics=micrograph_cleaner_em.cleanMics:commanLineFun"
+        ]
+    },
+)
