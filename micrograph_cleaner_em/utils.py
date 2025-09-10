@@ -131,11 +131,6 @@ def selectGpus(gpusStr):
 
 def resolveDesiredGpus(gpusStr):
   if gpusStr == '' or gpusStr is None or gpusStr.startswith("-"):
-      try:
-        n_gpus= abs(int(gpusStr))
-        return [-1*i for i in range(1, 1+n_gpus)], n_gpus
-      except ValueError:
-        pass
       return [None], 1
   elif gpusStr.startswith("all"):
     if 'CUDA_VISIBLE_DEVICES' in os.environ: #this is for slurm

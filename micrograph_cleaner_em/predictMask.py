@@ -42,8 +42,7 @@ class MaskPredictor(object):
 
     self.boxSize = boxSize
     self.strideFactor= strideFactor
-
-    if gpus is not None and len(gpus) > 0:
+    if gpus != [None] and len(gpus) > 0:
         # Keep only the requested physical GPUs (by index)
         physical = tf.config.list_physical_devices("GPU")
         select = [physical[i] for i in gpus if i < len(physical)]
