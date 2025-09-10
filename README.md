@@ -185,4 +185,5 @@ with mrcfile.new('mask.mrc', overwrite=True) as maskFile:
 ```
 
 ## Dataset
-The model and dataset used in this work can be downloaded from https://zenodo.org/records/6862671.
+The model and dataset used in this work can be downloaded from https://zenodo.org/records/17093439
+
