@@ -52,12 +52,12 @@ def cleanOneMic(micFname, boxSize, deepLearningModel=DEFAULT_MODEL_PATH, inputCo
     
   if predictedMaskFname is not None and os.path.isfile(predictedMaskFname):
     print("WARNING: mask already predicted for %s. Using it instead computing a new predicted mask"%(micFname))
-    predictedMask= loadMic( predictedMaskFname)
+    predictedMask, sampling_rate = loadMic( predictedMaskFname)
   else:
-    inputMic= loadMic( micFname )
+    inputMic, sampling_rate = loadMic( micFname )
     predictedMask= maskPredictor.predictMask(inputMic, preproDownsampleMic)
     if predictedMaskFname is not None:
-      writeMic(predictedMaskFname, predictedMask)
+      writeMic(predictedMaskFname, predictedMask, sampling_rate=sampling_rate)
   
   if inputCoordsFname is not None:
     inputCoords= loadCoords(inputCoordsFname, downFactorCoords)
