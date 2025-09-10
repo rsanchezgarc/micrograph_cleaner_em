@@ -3,6 +3,9 @@ import os
 
 from micrograph_cleaner_em.tests.testConfig import TEST_DATA_ROOT_DIR
 
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+os.environ.setdefault("TF_CUDNN_USE_AUTOTUNE", "0")
+os.environ.setdefault("TF_DETERMINISTIC_OPS", "1")
 
 class TestMaskPredictor(TestCase):
 
@@ -15,7 +18,7 @@ class TestMaskPredictor(TestCase):
     micFname = os.path.join(TEST_DATA_ROOT_DIR, "mics", "Ucsf_stack_1142_DW.mrc")
     precomputedMaskFname= os.path.join(TEST_DATA_ROOT_DIR, "masks", "Ucsf_stack_1142_DW.mrc")
     boxSize = 46
-    deepLearningModelFname = os.path.join(DEFAULT_MODEL_PATH, "defaultModel.keras")
+    deepLearningModelFname = os.path.join(DEFAULT_MODEL_PATH, "defaultModel.h5")
 
     with mrcfile.open(micFname, permissive=True) as f: mic = f.data.copy()
 
