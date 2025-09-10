@@ -47,7 +47,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
 
   parser.add_argument('-i', '--inputMicsPath', metavar='MIC_FNAME', type=str, nargs='+', required=True,
                       help='micrograph(s) filenames where coordinates were picked (.mrc or .tif).\n' +
-                           'Linux wildcards or several files are allowed.')
+                           'Linux wildcards or several files are allowed. Also, you can provide a .txt file with paths to micrographs')
 
   parser.add_argument('-c', '--inputCoordsDir', type=str, required=False,
                       help='input coordinates directory (.pos or tab separated x y). Filenames ' +
