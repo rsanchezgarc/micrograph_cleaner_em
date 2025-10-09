@@ -28,47 +28,38 @@ class MaskPredictor(object):
     mask_CUDA_VISIBLE_DEVICES(gpus)
     import tensorflow as tf
     import keras
-    for _gpu in tf.config.list_physical_devices("GPU"):
-      try:
-        tf.config.experimental.set_memory_growth(_gpu, True)
-      except Exception:
-        pass
-    tf.config.optimizer.set_jit(False)
-    self.model = keras.models.load_model(
-              deepLearningModelFname,
-              custom_objects={"LeakyReLU": keras.layers.LeakyReLU}, #This is to handle the legacy code
-              compile=False)
 
+    physical_devices = tf.config.list_physical_devices("GPU")
+    if not physical_devices:
+        if gpus is not None and gpus != [None] and gpus != ['-1']:
+             warnings.warn("Warning: Specified GPUs not found, using CPU.")
+    else:
+        for device in physical_devices:
+            try:
+                tf.config.experimental.set_memory_growth(device, True)
+            except RuntimeError as e:
+                # Memory growth must be set before GPUs have been initialized
+                print(e)
+
+    tf.config.optimizer.set_jit(False)
+
+    if len(physical_devices) > 1:
+        strategy = tf.distribute.MirroredStrategy()
+        with strategy.scope():
+            self.model = keras.models.load_model(
+                deepLearningModelFname,
+                custom_objects={"LeakyReLU": keras.layers.LeakyReLU},
+                compile=False
+            )
+    else:
+        self.model = keras.models.load_model(
+            deepLearningModelFname,
+            custom_objects={"LeakyReLU": keras.layers.LeakyReLU},
+            compile=False
+        )
 
     self.boxSize = boxSize
-    self.strideFactor= strideFactor
-    if gpus != [None] and len(gpus) > 0:
-        # Keep only the requested physical GPUs (by index)
-        physical = tf.config.list_physical_devices("GPU")
-        select = [physical[i] for i in gpus if i < len(physical)]
-        if select:
-            tf.config.set_visible_devices(select, "GPU")
-            for dev in select:
-                try:
-                    tf.config.experimental.set_memory_growth(dev, True)
-                except Exception:
-                    pass
-            if len(select) > 1:
-                # Recreate model under distribution scope for multi-GPU inference
-                strategy = tf.distribute.MirroredStrategy(
-                    devices=[f"/GPU:{i}" for i in range(len(select))]
-                )
-                with strategy.scope():
-                    self.model = keras.models.load_model(
-                        deepLearningModelFname,
-                        custom_objects={"LeakyReLU": keras.layers.LeakyReLU},
-                        compile=False
-                    )
-            # else: single requested GPU already configured above; nothing else to do
-        else:
-            # Requested indices not available → force CPU
-            tf.config.set_visible_devices([], "GPU")
-            warnings.warn("Warning, GPU not found useing  CPU")
+    self.strideFactor = strideFactor
   def getDownFactor(self):
     '''
     MaskPredictor preprocess micrographs before Nnet computation. First step is donwsampling using a donwsampling factor
