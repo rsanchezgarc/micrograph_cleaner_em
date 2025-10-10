@@ -8,6 +8,11 @@ os.environ.setdefault("TF_CUDNN_USE_AUTOTUNE", "0")
 os.environ.setdefault("TF_DETERMINISTIC_OPS", "1")
 
 class TestMaskPredictor(TestCase):
+  def setUp(self):
+    from subprocess import check_call
+    download_cmd = "python -m micrograph_cleaner_em.cleanMics --download"
+    check_call(download_cmd, shell=True)
+
 
   def test_predictMask(self):
     from micrograph_cleaner_em import MaskPredictor

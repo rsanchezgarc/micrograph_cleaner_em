@@ -9,6 +9,8 @@ class TestCommanLineFun(TestCase):
     import tempfile
     with tempfile.TemporaryDirectory() as dirpath:
       datapath = os.path.join(os.path.dirname(__file__), "data/mics")
+      download_cmd = "python -m micrograph_cleaner_em.cleanMics --download"
+      check_call(download_cmd, shell=True)
       cmd = f"python  -m micrograph_cleaner_em.cleanMics -i {datapath}/* -b 80 -g -1 -p {dirpath}"
       check_call(cmd, shell=True )
     with tempfile.TemporaryDirectory() as dirpath:
