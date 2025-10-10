@@ -1,6 +1,6 @@
 setuptools_scm
 # Core DL stack
-tensorflow[and-cuda]>=2.16,<2.18
+tensorflow[and-cuda]>=2.16
 keras>=3.2,<3.4
 
 # Array / scientific
