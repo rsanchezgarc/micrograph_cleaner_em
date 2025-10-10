@@ -134,13 +134,20 @@ def resolveDesiredGpus(gpusStr):
       return [None], 1
   elif gpusStr.startswith("all"):
     if 'CUDA_VISIBLE_DEVICES' in os.environ: #this is for slurm
-      gpus= [ elem.strip() for elem in os.environ['CUDA_VISIBLE_DEVICES'].split(",") ]
-      return gpus, len(gpus)
+      gpus_str = os.environ['CUDA_VISIBLE_DEVICES']
+      if gpus_str:
+          gpus = [elem.strip() for elem in gpus_str.split(",")]
+          return gpus, len(gpus)
+      else:
+          return [None], 1
     else:
       try:
         nGpus= int(check_output("nvidia-smi -L | wc -l", shell=True))
-        gpus= list(range(nGpus))
-        return gpus, nGpus
+        if nGpus > 0:
+            gpus= list(range(nGpus))
+            return gpus, nGpus
+        else:
+            return [None], 1
       except (CalledProcessError, FileNotFoundError, OSError):
         return [None], 1
   else:

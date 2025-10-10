@@ -39,9 +39,9 @@ def loadCoordsPandas(fname):
   else:
     colNames = False
   if colNames == True:
-    coords = pd.read_csv(fname, sep="\s+", header=0)
+    coords = pd.read_csv(fname, sep=r"\s+", header=0)
   else:
-    coords = pd.read_csv(fname, sep="\s+", header=None)
+    coords = pd.read_csv(fname, sep=r"\s+", header=None)
     print("No header found in %f, assuming first column is x and y column is y" % (fname))
     coords.columns = ["xcoor", "ycoord"] + ["c%d" % i for i in range(coords.shape[1] - 2)]
   return coords
