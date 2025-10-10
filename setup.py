@@ -1,15 +1,13 @@
-import sys, os
-from setuptools import setup
-from subprocess import Popen, PIPE
+from pathlib import Path
+from setuptools import setup, find_packages
 
-VERSION="0.37"
-def readme():
-  readmePath= os.path.abspath(os.path.join(__file__, "..", "README.md") )
-  with open(readmePath) as f:
-      return f.read()
+ROOT = Path(__file__).parent
 
-nvccProgram = Popen(["which", "nvcc"],stdout=PIPE).stdout.read()
-tensorFlowTarget = "==1.12"
+# Prefer README for long_description
+long_description = ""
+readme = ROOT / "README.md"
+if readme.exists():
+    long_description = readme.read_text(encoding="utf-8")
 
 if sys.version_info[0] <3:
   FileNotFoundError= OSError
@@ -45,23 +43,31 @@ install_requires=[
         'requests==2.22',
     ]
 
-if sys.version_info[0] < 3:
-  install_requires = ['pillow==5.0', 'matplotlib==2.2.4', 'networkx==2.2', 'PyWavelets==1.0.3']+install_requires
-
-setup(name='micrograph_cleaner_em',
-  version=VERSION,
-  description='Deep learning for cryo-EM micrograph cleaning',
-  long_description=readme(),
-  long_description_content_type="text/markdown",
-  keywords='cryo-EM deep learning',
-  url='https://github.com/rsanchezgarc/micrograph_cleaner_em',
-  author='Ruben Sanchez-Garcia',
-  author_email='rsanchez@cnb.csic.es',
-  license='Apache 2.0',
-  packages=[ 'micrograph_cleaner_em' ],
-  install_requires= install_requires,
-  entry_points={
-      'console_scripts': ['cleanMics=micrograph_cleaner_em.cleanMics:commanLineFun'],
-  },
-  include_package_data=True,
-  zip_safe=False)
+setup(
+    name="micrograph-cleaner-em",
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
+    description="Deep-learning micrograph denoising/segmentation for cryo-EM (TF2/Keras3 rescue)",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/rsanchezgarc/micrograph_cleaner_em",
+    author="Original authors + maintainers",
+    license="MIT",
+    packages=find_packages(exclude=("tests", "docs", "examples")),
+    include_package_data=True,
+    python_requires=">=3.9",
+    install_requires=install_requires,
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering :: Image Processing",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    ],
+    entry_points={
+        "console_scripts": [
+           "cleanMics=micrograph_cleaner_em.cleanMics:commanLineFun"
+        ]
+    },
+)

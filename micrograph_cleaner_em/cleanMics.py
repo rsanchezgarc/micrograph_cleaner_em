@@ -5,13 +5,19 @@ import os
 os.environ['OPENBLAS_NUM_THREADS']="4"
 os.environ['MKL_NUM_THREADS']="4"
 os.environ['OMP_NUM_THREADS']="4"
+os.environ.setdefault("TF_CUDNN_USE_AUTOTUNE", "0")
+# Also avoid other exhaustive / non-deterministic alg selection
+os.environ.setdefault("TF_DETERMINISTIC_OPS", "1")
+# Optional: quiet logs
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+
+
 from joblib import Parallel, delayed
 
 
 def main(inputMicsPath, inputCoordsDir, outputCoordsDir, deepLearningModel, boxSize, downFactorCoords, deepThr,
          sizeThr, predictedMaskDir, preproDownsampleMic=1, gpus="0"):
   from .utils import getFilesInPaths, getMatchingFiles, resolveDesiredGpus
-
   gpus, n_jobs= resolveDesiredGpus(gpus)
   micsFnames=getFilesInPaths(inputMicsPath, ["mrc", "tif"])
   inputCoordsFnames=getFilesInPaths(inputCoordsDir, ["txt", "tab", "pos", "star"], abortIfEmpty=False)

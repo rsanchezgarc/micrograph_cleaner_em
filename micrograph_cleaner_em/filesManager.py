@@ -2,45 +2,31 @@ import os
 import numpy as np
 import pandas as pd
 
-try:
-  # Import xmipp libraries to read/write files
-  import xmippLib
-
-  def loadMic(fname):
-    I = xmippLib.Image()
-    I.read(fname)
-    return I.getData()
-
-
-  def writeMic(fname, data):
-    I = xmippLib.Image()
-    I.setData(data)
-    I.write(fname)
-
-except ImportError:
-  # Import default libraries to read/write files
-  import mrcfile
-  from skimage.io import imsave, imread
+import mrcfile
+from skimage.io import imsave, imread
 
 
 
-  def loadMic(fname):
+def loadMic(fname):
     print(fname)
     if os.path.basename(fname).split(".")[-1].startswith("mrc"):
       with mrcfile.open(fname, permissive=True) as mrc:
         micData = np.squeeze(mrc.data.copy())
+        sampling_rate = mrc.voxel_size
     else:
       micData = np.squeeze(imread(fname))
-    return micData
+      sampling_rate = None
+    return micData, sampling_rate
 
 
-  def writeMic(fname, data):
+def writeMic(fname, data, sampling_rate=None):
     if data.dtype == np.float64:
       data = data.astype(np.float32)
     print(data.shape)
     if os.path.basename(fname).split(".")[-1].startswith("mrc"):
       with mrcfile.new(fname, overwrite=True) as mrc:
         mrc.set_data(data)
+        mrc.voxel_size = sampling_rate
     else:
       imsave(fname, data)
 

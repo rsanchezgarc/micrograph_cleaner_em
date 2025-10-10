@@ -4,27 +4,82 @@ from subprocess import check_output, CalledProcessError
 
 
 def getFilesInPaths(pathsList, extensions, abortIfEmpty=True):
-  if pathsList is None or len(pathsList)<1:
-    fnames=[]
-    errorPath=pathsList
-  elif isinstance(pathsList, str) or 1 == len(pathsList):
-    if not isinstance(pathsList, str) and len(pathsList)==1:
-      pathsList= pathsList[0]
-    if os.path.isdir(pathsList):
-      pathsList= os.path.join(pathsList, "*")
-    fnames=glob.glob(pathsList)
-    assert len(fnames)>=1 and not os.path.isdir(pathsList), "Error, %s path not found or incorrect"%(pathsList)
-    errorPath= pathsList
+  """
+  Accepts:
+    - single path string
+      * file
+      * directory (expands to *)
+      * glob pattern
+      * .txt list file: one absolute path (or glob) per line; '#' comments allowed
+    - list of paths
+  Filters by provided extensions (case-insensitive).
+  """
+  def _filter_and_norm(paths, exts):
+    exts = {e.lower().lstrip(".") for e in set(exts)}
+    out = []
+    for p in paths:
+      if not os.path.isfile(p):
+        continue
+      ext = p.lower().rsplit(".", 1)[-1] if "." in p else ""
+      if ext in exts:
+        out.append(p)
+    # de-duplicate & sort for stability
+    return sorted(set(out))
+
+  if pathsList is None or len(pathsList) < 1:
+    fnames = []
+    errorPath = pathsList
+
+  elif isinstance(pathsList, str) or len(pathsList) == 1:
+    if not isinstance(pathsList, str) and len(pathsList) == 1:
+      pathsList = pathsList[0]
+
+    path_in = os.path.expanduser(pathsList)
+
+    # NEW: support a .txt file with one path/glob per line
+    if os.path.isfile(path_in) and path_in.lower().endswith(".txt"):
+      candidates = []
+      with open(path_in, "r", encoding="utf-8") as f:
+        for line in f:
+          s = line.strip()
+          if not s or s.startswith("#"):
+            continue
+          s = os.path.expanduser(s)
+          if os.path.isdir(s):
+            candidates.extend(glob.glob(os.path.join(s, "*")))
+          else:
+            # allow globs inside the list file too
+            candidates.extend(glob.glob(s))
+      fnames = candidates
+      errorPath = path_in
+
+    else:
+      if os.path.isdir(path_in):
+        path_in = os.path.join(path_in, "*")
+      fnames = glob.glob(path_in)
+      assert len(fnames) >= 1 and not os.path.isdir(path_in), "Error, %s path not found or incorrect" % (path_in)
+      errorPath = path_in
+
   else:
-    fnames= pathsList
+    # list of paths provided
+    fnames = []
+    for p in pathsList:
+      p = os.path.expanduser(p)
+      if os.path.isdir(p):
+        fnames.extend(glob.glob(os.path.join(p, "*")))
+      else:
+        fnames.extend(glob.glob(p))
     try:
-      errorPath= os.path.split(pathsList[0])[0]
+      errorPath = os.path.split(pathsList[0])[0]
     except IndexError:
-      raise Exception("Error, pathList contains erroneous paths "+str(pathsList))
-  extensions= set(extensions)
-  fnames= [ fname for fname in fnames if fname.split(".")[-1] in extensions ]
+      raise Exception("Error, pathList contains erroneous paths " + str(pathsList))
+
+  # extension filter (case-insensitive), dedup, sort
+  fnames = _filter_and_norm(fnames, extensions)
+
   if abortIfEmpty:
-    assert len(fnames)>0, "Error, there are no < %s > files in path %s"%(" - ".join(extensions), errorPath)
+    assert len(fnames) > 0, "Error, there are no < %s > files in path %s" % (" - ".join(extensions), errorPath)
+
   return fnames
 
 def getMatchingFiles(micsFnames, inputCoordsDir, outputCoordsDir, predictedMaskDir, coordsExtension):
@@ -76,11 +131,6 @@ def selectGpus(gpusStr):
 
 def resolveDesiredGpus(gpusStr):
   if gpusStr == '' or gpusStr is None or gpusStr.startswith("-"):
-      try:
-        n_gpus= abs(int(gpusStr))
-        return [-1*i for i in range(1, 1+n_gpus)], n_gpus
-      except ValueError:
-        pass
       return [None], 1
   elif gpusStr.startswith("all"):
     if 'CUDA_VISIBLE_DEVICES' in os.environ: #this is for slurm

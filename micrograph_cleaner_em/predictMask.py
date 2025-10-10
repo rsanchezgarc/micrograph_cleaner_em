@@ -6,6 +6,7 @@ from micrograph_cleaner_em.config import BATCH_SIZE
 from .utils import mask_CUDA_VISIBLE_DEVICES
 from .preprocessMic import preprocessMic, padToRegularSize, getDownFactor, resizeMic
 from math import ceil
+import warnings
 
 from .config import MODEL_IMG_SIZE, DEFAULT_MODEL_PATH, ROTATIONS
 
@@ -25,18 +26,40 @@ class MaskPredictor(object):
                          bigger the better the predictions, but higher computational cost.
     '''
     mask_CUDA_VISIBLE_DEVICES(gpus)
-    try:
-      import tensorflow.keras as keras
-    except ImportError:
-      import tensorflow
-      keras = tensorflow.keras
-    self.model = keras.models.load_model(deepLearningModelFname, {})
-    self.boxSize = boxSize
-    self.strideFactor= strideFactor
-    if gpus is not None:
-      if len(gpus) > 1:
-        self.model = keras.utils.multi_gpu_model(self.model, gpus=gpus)
+    import tensorflow as tf
+    import keras
 
+    physical_devices = tf.config.list_physical_devices("GPU")
+    if not physical_devices:
+        if gpus is not None and gpus != [None] and gpus != ['-1']:
+             warnings.warn("Warning: Specified GPUs not found, using CPU.")
+    else:
+        for device in physical_devices:
+            try:
+                tf.config.experimental.set_memory_growth(device, True)
+            except RuntimeError as e:
+                # Memory growth must be set before GPUs have been initialized
+                print(e)
+
+    tf.config.optimizer.set_jit(False)
+
+    if len(physical_devices) > 1:
+        strategy = tf.distribute.MirroredStrategy()
+        with strategy.scope():
+            self.model = keras.models.load_model(
+                deepLearningModelFname,
+                custom_objects={"LeakyReLU": keras.layers.LeakyReLU},
+                compile=False
+            )
+    else:
+        self.model = keras.models.load_model(
+            deepLearningModelFname,
+            custom_objects={"LeakyReLU": keras.layers.LeakyReLU},
+            compile=False
+        )
+
+    self.boxSize = boxSize
+    self.strideFactor = strideFactor
   def getDownFactor(self):
     '''
     MaskPredictor preprocess micrographs before Nnet computation. First step is donwsampling using a donwsampling factor

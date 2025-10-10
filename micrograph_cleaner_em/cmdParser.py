@@ -47,7 +47,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
 
   parser.add_argument('-i', '--inputMicsPath', metavar='MIC_FNAME', type=str, nargs='+', required=True,
                       help='micrograph(s) filenames where coordinates were picked (.mrc or .tif).\n' +
-                           'Linux wildcards or several files are allowed.')
+                           'Linux wildcards or several files are allowed. Also, you can provide a .txt file with paths to micrographs')
 
   parser.add_argument('-c', '--inputCoordsDir', type=str, required=False,
                       help='input coordinates directory (.pos or tab separated x y). Filenames ' +
@@ -107,7 +107,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
         downloadPath = os.path.abspath(os.path.expanduser(values[0]))
       if not os.path.exists(downloadPath):
         os.makedirs(downloadPath)
-      deepLearningModelPath = os.path.join(downloadPath, "defaultModel.keras")
+      deepLearningModelPath = os.path.join(downloadPath, "defaultModel.h5")
       print("DOWNLAODING MODEL at %s" % (downloadPath))
       with open(deepLearningModelPath, 'wb') as f:
         content = gzip.GzipFile(fileobj=BytesIO(r.content))
@@ -124,7 +124,7 @@ cleanMics  -c path/to/inputCoords/ -o path/to/outputCoords/ -b $BOX_SIXE -s $DOW
   if deepLearningModelPath is None:
     if not os.path.exists(DEFAULT_MODEL_PATH):
       os.makedirs(DEFAULT_MODEL_PATH)
-    deepLearningModelPath = os.path.join(DEFAULT_MODEL_PATH, "defaultModel.keras")
+    deepLearningModelPath = os.path.join(DEFAULT_MODEL_PATH, "defaultModel.h5")
   args["deepLearningModel"] = deepLearningModelPath
   if not os.path.isfile(deepLearningModelPath):
     print(("Deep learning model not found at %s. Downloading default model with --download or " +
