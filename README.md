@@ -35,7 +35,12 @@ conda activate env_micrograph_cleaner_em
   
 2) Install micrograph_cleaner_em
 
-To get the latest version, install from instead.
+PyPI
+
+`pip install micrograph-cleaner-em`
+
+
+To get the latest version, install from git instead.
 
 
 ```

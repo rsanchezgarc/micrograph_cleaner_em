@@ -20,7 +20,8 @@ with req_file.open(encoding="utf-8") as f:
 
 setup(
     name="micrograph-cleaner-em",
-    version="1.1.0",
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     description="Deep-learning micrograph denoising/segmentation for cryo-EM (TF2/Keras3 rescue)",
     long_description=long_description,
     long_description_content_type="text/markdown",
