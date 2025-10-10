@@ -9,38 +9,13 @@ readme = ROOT / "README.md"
 if readme.exists():
     long_description = readme.read_text(encoding="utf-8")
 
-if sys.version_info[0] <3:
-  FileNotFoundError= OSError
-
-if nvccProgram== "":
-  print("No cuda instalation found. Installing cpu version")
-else:
-  try:
-    nvccVersion = Popen(["nvcc", '--version'],stdout=PIPE).stdout.read().decode("utf-8")
-  except FileNotFoundError:
-    nvccVersion=""
-  if "release 9.0" in nvccVersion:  # cuda 9
-    print("CUDA 9 found")
-    tensorFlowTarget = "-gpu==1.12.0"
-  elif "release 10.0" in nvccVersion:  # cuda 10
-    print("CUDA 10.0 found")
-    tensorFlowTarget = "-gpu==1.13.0"
-  elif "release 10.1" in nvccVersion:  # cuda 10
-    print("CUDA 10.1 found")
-    tensorFlowTarget = "-gpu==1.14.0"
-  else:
-    print("Unrecognized CUDA version. Installing cpu version")
-
-install_requires=[
-        'scikit-image==0.14.2',
-        'scipy==1.1',
-        'joblib==0.12',
-        'numpy ==1.22.0',
-        'tensorflow%s'%tensorFlowTarget,
-        'h5py==2.10',
-        'pandas==0.24',
-        'mrcfile==1.1',
-        'requests==2.22',
+# Read requirements dynamically
+req_file = ROOT / "requirements.txt"   # change to "requests.txt" if that's your filename
+with req_file.open(encoding="utf-8") as f:
+    install_requires = [
+        line.strip()
+        for line in f
+        if line.strip() and not line.startswith("#")
     ]
 
 setup(
